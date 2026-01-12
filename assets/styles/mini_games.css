@@ -1,86 +1,77 @@
  :root {
      --bg-color: #ede6d1;
      --floor-color: #6a6a6a;
-     --success-color: #4CAF50;
-     --danger-color: #f44336;
+     /* --success-color: #4CAF50;
+     --danger-color: #f44336;*/
+     --red-dark: #7B090B;
+     --red-medium: #A20E10;
+     --red-light: #C50D0D;
+     --panel-bg: #1e1e1e;
+     --white: #f5f5f5;
  }
 
- #backBtn{
-    cursor: pointer;
+ #backBtn {
+     cursor: pointer;
  }
- /* DIALOGUE OVERLAY
- #dialogue-overlay {
-     position: fixed;
+
+ button {
+     color: white;
+     border: none;
+     padding: 15px 15px;
+     font-size: 18px;
+     border-radius: 8px;
+     cursor: pointer;
+     transition: transform 0.1s, background 0.2s;
+     margin-top: 10px;
+ }
+
+ button:hover {
+     transform: scale(1.05);
+ }
+
+ .overlay {
+     position: absolute;
      inset: 0;
      background: rgba(0, 0, 0, 0.5);
-     z-index: 200 !important;
-     display: flex;
-     justify-content: center;
-     align-items: center;
-     opacity: 0;
-     pointer-events: none;
-     transition: opacity 0.5s ease;
- }
-
- #end-dialogue-overlay {
-     position: fixed;
-     inset: 0;
-     background: rgba(0, 0, 0, 0.5);
-     z-index: 200 !important;
-     display: flex;
-     justify-content: center;
-     align-items: center;
-     opacity: 0;
-     pointer-events: none;
-     transition: opacity 0.5s ease;
- }
-
- .dialogue-wrapper {
-     position: relative;
-     pointer-events: auto;
+     z-index: 100;
      display: flex;
      flex-direction: column;
+     justify-content: center;
      align-items: center;
+     color: white;
+     text-align: center;
  }
 
- .dialogue-img {
-     width: 80vw;
-     max-width: 900px;
- }
-
- .btn-svg {
-     width: 200px;
-     cursor: pointer;
-     margin-top: -60px;
-     transition: transform 0.2s;
- }
-
- .btn-svg:hover {
-     transform: scale(1.1);
- }
-
- .hidden {
-     display: none !important;
- } */
 
  /* NAVBAR */
  #navbar {
      position: fixed;
      top: -100px;
-     left: 0;
      width: 100%;
+     height: 40px;
      transition: top 0.5s ease;
      z-index: 50;
-     background: #000;
+     background: var(--panel-bg);
      padding: 10px 20px;
      display: flex;
      justify-content: space-between;
      align-items: center;
+
+ }
+
+ .settings-nav {
+     position: relative;
+     /* Change from fixed to relative */
+     top: 0;
+     right: 40px;
  }
 
  #navbar.active {
      top: 0;
+
  }
+
+
 
  /* POPUP QUIT */
  .quit-panel {
@@ -115,12 +106,72 @@
  }
 
 
- /* CROSSWORD LAYOUT */
+ /* CROSSWORD HELP */
 
  .help {
      text-align: right;
-     margin-bottom: 30px;
  }
+
+ #openPopup {
+     background-color: #FACB0F;
+     border: 2px solid var(--panel-bg);
+     color: var(--panel-bg);
+     margin-top: 0px;
+     font-weight: 600;
+     padding: 10px 15px;
+ }
+
+ /* The White Card */
+ .popup-card {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     background-color: var(--white);
+     width: 30%;
+     padding: 30px;
+     border-radius: 25px;
+ }
+
+ /* Header layout: Title and X on the same line */
+ .popup-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 20px;
+ }
+
+ .popup-header h2 {
+     margin: 0;
+     font-size: 2rem;
+     font-weight: bold;
+     color: var(--panel-bg);
+ }
+
+ /* The Red Close Button */
+ .close-btn {
+     background-color: var(--red-medium);
+     border: 2px solid var(--panel-bg);
+     color: var(--white);
+     font-size: 24px;
+     width: 35px;
+     height: 35px;
+     border-radius: 5px;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     line-height: 0;
+ }
+
+ .popup-body img {
+     width: 100%;
+     height: auto;
+     display: block;
+ }
+
+
+ /* Crossword*/
 
  .container {
      display: flex;
@@ -140,9 +191,9 @@
 
  .cell {
      position: relative;
-     background: #ffffff;
+     background: var(--white);
      border-radius: 8px;
-     border: 2px solid #c7d2fe;
+     border: 1px solid var(--panel-bg);
      text-align: center;
      font-size: 18px;
      font-weight: 700;
@@ -159,19 +210,19 @@
  }
 
  .cell.word-selected {
-     background: #dbeafe;
+     background: #FFCACA;
  }
 
  .cell.selected {
-     border-color: #6366f1;
-     box-shadow: 0 0 0 4px #c7d2fe;
+     border: 1px solid var(--red-dark);
+     box-shadow: 0 0 0 2px #E77B7B;
  }
 
  .cell.correct {
-     background: #dcfce7 !important;
+     background: #CAE77B !important;
      /* Soft Green */
-     border-color: #22c55e !important;
-     color: #166534 !important;
+     border-color: #84A20E !important;
+     color: var(--panel-bg) !important;
  }
 
  .number {
@@ -179,34 +230,51 @@
      top: 2px;
      left: 4px;
      font-size: 10px;
-     color: #4338ca;
+     color: var(--panel-bg);
      line-height: 1;
  }
 
  .clues-container {
-     width: 300px;
+     width: 410px;
      padding-left: 10px;
  }
 
+ .clue-section {
+     display: block;
+ }
+
  .clues-main-title {
-     font-size: 32px;
-     color: #7B090B;
+     font-size: 25px;
+     color: var(--red-medium);
      margin: 0 0 15px 0;
  }
 
  .clue-text {
+     background-color: #E5E5E5;
      font-size: 14px;
      margin: 5px 0;
      cursor: pointer;
+     padding: 10px;
+     margin-bottom: 14px;
+     border-radius: 8px;
+
+ }
+
+ .clue-text:hover {
+     color: var(--panel-bg);
+     border: 2px solid var(--red-medium);
+     background-color: var(--white);
+
  }
 
  .clue-text.active-clue {
-     color: #C50D0D;
-     font-weight: bold;
+     color: var(--panel-bg);
+     border: 2px solid var(--red-medium);
+     background-color: var(--white);
  }
 
  .status-panel {
-     padding: 20px;
+     padding: 0;
      text-align: center;
      transition: all 0.4s ease;
  }
@@ -230,12 +298,10 @@
  }
 
  .status-panel.success .conclude-btn {
-     background-color: #22c55e;
-     color: white;
- }
-
- .status-panel.success .conclude-btn:hover {
-     background-color: #16a34a;
+     background: #CAE77B !important;
+     /* Soft Green */
+     border: 1px solid #84A20E !important;
+     color: var(--panel-bg) !important;
  }
 
  /* MARKET */
@@ -244,13 +310,26 @@
      position: absolute;
      bottom: 0;
      width: 100%;
-     height: 80px;
+     height: 90px;
      background-color: var(--floor-color);
      z-index: 1;
  }
 
+ #ui-market {
+     position: absolute;
+     top: 15%;
+     left: 50%;
+     transform: translateX(-50%);
+     text-align: center;
+     z-index: 10;
+     width: 400px;
+     color: white;
+     background-color: none;
+     z-index: 20;
+ }
+
  #score-text {
-     font-size: 28px;
+     font-size: 24px;
      font-weight: bold;
      color: #444;
      margin-bottom: 10px;
@@ -259,35 +338,19 @@
  #progress-wrapper {
      width: 100%;
      height: 20px;
-     background-color: #fff;
+     background-color: none;
      border-radius: 10px;
-     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
      overflow: hidden;
-     border: 2px solid #fff;
+     border: 2px solid var(--panel-bg);
  }
 
  #progress-fill {
      width: 0%;
      height: 100%;
-     background-color: var(--success-color);
+     background-color: var(--panel-bg);
      transition: width 0.3s ease;
  }
 
-
-
- #ui-market {
-     position: absolute;
-     top: 10%;
-     left: 50%;
-     transform: translateX(-50%);
-     text-align: center;
-     z-index: 10;
-     width: 400px;
-     font-size: 24px;
-     color: white;
-     background-color: #7B090B;
-     z-index: 20;
- }
 
  #cart {
      /* Start at 0 width */
@@ -352,24 +415,6 @@
      color: #333;
  }
 
-
- button {
-     background-color: var(--success-color);
-     color: white;
-     border: none;
-     padding: 15px 30px;
-     font-size: 18px;
-     border-radius: 8px;
-     cursor: pointer;
-     transition: transform 0.1s, background 0.2s;
-     margin-top: 10px;
- }
-
- button:hover {
-     background-color: #45a049;
-     transform: scale(1.05);
- }
-
  #win-screen {
      display: none;
  }
@@ -389,35 +434,11 @@
      will-change: transform;
  }
 
- #layer-city {
-     background-image: url('assets/market/market.png');
-     background-size: contain;
-     height: 400px;
-     z-index: 1;
-     opacity: 0.8;
- }
-
- #layer-trees {
-     background-image: url('assets/house/arbusto.svg');
-     background-size: 300px;
-     height: 150px;
-     bottom: 90px;
-     z-index: 2;
- }
-
- #layer-ground {
-     height: 100px;
-     background: #8d6e63;
-     border-top: 10px solid #7cb342;
-     width: 100%;
-     bottom: 0;
-     z-index: 5;
- }
 
  /* --- PERSONAGEM --- */
  #runner-container {
      position: absolute;
-     bottom: 200px;
+     bottom: 50px;
      left: 50%;
      transform: translateX(-50%);
      z-index: 10;
@@ -431,43 +452,35 @@
      background-position: center;
  }
 
- .overlay {
-     position: absolute;
-     inset: 0;
-     background: rgba(0, 0, 0, 0.85);
-     z-index: 100;
-     display: flex;
-     flex-direction: column;
-     justify-content: center;
-     align-items: center;
-     color: white;
-     text-align: center;
- }
-
 
  #ui-top {
      position: absolute;
-     top: 15%;
+     top: 10%;
      width: 100%;
      display: flex;
-     justify-content: center;
+     flex-direction: column;
+     /* Stacks the progress bar and slider */
+     align-items: center;
+     /* Centers both horizontally */
+     gap: 20px;
+     /* Adds space between the bar and the slider */
      z-index: 50;
  }
 
  .bar-container {
-     width: 350px;
+     width: 390px;
      text-align: center;
      font-weight: bold;
-     color: #2c3e50;
+     color: var(--white);
  }
 
 
  .bar-bg {
      width: 100%;
-     height: 20px;
-     background: #eee;
-     border-radius: 10px;
-     border: 2.5px solid #2c3e50;
+     height: 15px;
+     background: none;
+     border-radius: 15px;
+     border: 2px solid var(--white);
      overflow: hidden;
      margin-top: 5px;
  }
@@ -493,38 +506,107 @@
  #level-progress {
      height: 100%;
      width: 0%;
-     background: #2ecc71;
+     background: var(--white);
  }
 
  #ui-bottom {
-     position: absolute;
-     bottom: 30px;
-     left: 50%;
-     transform: translateX(-50%);
+     width: 350px;
      background: rgba(255, 255, 255, 0.95);
-     padding: 15px 30px;
+     padding: 15px 20px;
      border-radius: 25px;
      display: flex;
      flex-direction: column;
      align-items: center;
      gap: 5px;
-     z-index: 50;
+ }
+
+ #ui-bottom .bar-bg {
+     width: 100% !important;
+     /* Forces it to match the slider/container width */
+     height: 10px;
+     border: none;
+     background: #ddd;
+     margin-top: 5px;
+     border-radius: 5px;
+     overflow: hidden;
+     /* Ensures the inner bar stays rounded */
  }
 
  .rhythm-timer {
      font-size: 12px;
      font-weight: bold;
-     color: #e74c3c;
-     margin-bottom: 2px;
+     color: var(--red-light);
+     margin-top: 10px;
  }
 
  #stagnation-bar {
-     width: 300px;
+     width: 100%;
+     height: 100%;
+     background: var(--red-light);
+     border-radius: 5px;
+     transition: width 0.1s linear;
+ }
+
+ #speed-slider {
+     width: 100%;
+     margin-bottom: 20px;
+     cursor: pointer;
+ }
+
+ #speed-slider::-webkit-slider-thumb {
+     -webkit-appearance: none;
+     appearance: none;
+     width: 20px;
+     height: 20px;
+     background: var(--red-light);
+     /* Using your --red-light color */
+     border-radius: 50%;
+     cursor: pointer;
+     border: 2px solid #7B090B;
+     /* Using your --red-dark for depth */
+     margin-top: -5px;
+     /* Centers thumb on the track */
+ }
+
+ #speed-slider::-webkit-slider-runnable-track {
+     width: 100%;
      height: 10px;
-     background: #e74c3c;
+     cursor: pointer;
+     background: #ddd;
+     /* Light gray to match the bar-bg */
      border-radius: 5px;
  }
 
+ #speed-slider {
+     -webkit-appearance: none;
+     /* Removes default Chrome styling */
+     appearance: none;
+     width: 100%;
+     /* Matches the stagnation bar width as previously set */
+     background: transparent;
+     /* Removes default gray background */
+ }
+
+ #rhythm-message {
+     transition: opacity 0.3s ease, transform 0.3s ease;
+     text-transform: uppercase;
+     color: var(--white);
+     font-weight: bold;
+     height: 20px;
+     margin-bottom: 5px;
+ }
+
+ #rhythm-message.hidden {
+     opacity: 0;
+     transform: translateY(10px);
+     display: block !important;
+     /* Keep it in the layout but invisible */
+ }
+
+ #rhythm-message:not(.hidden) {
+     opacity: 1;
+     transform: translateY(0);
+ }
 
  /* ARCADE */
 
@@ -537,7 +619,7 @@
 
  .screen {
      position: absolute;
-     top: 50%;
+     top: 30%;
      left: 50%;
      transform: translate(-50%, -50%);
      z-index: 100;
@@ -548,12 +630,13 @@
      align-items: center;
  }
 
- h1 {
+ .screen h1 {
      font-size: 48px;
      margin-bottom: 20px;
+     color: var(--white);
  }
 
- p {
+ .screen p {
      font-size: 14px;
      margin-bottom: 40px;
  }
@@ -596,8 +679,8 @@
      transform: translateX(-50%);
      width: 300px;
      height: 10px;
-     background: rgba(255, 255, 255, 0.1);
-     border: 1px solid white;
+     background: none;
+     border: 1px solid var(--white);
      z-index: 50;
  }
 
@@ -629,7 +712,6 @@
      background: #a8d8ff;
      /* Sky color from sheep.html */
      overflow: hidden;
-     border-bottom: 4px solid #555;
      display: block;
  }
 
@@ -643,7 +725,7 @@
      justify-content: center;
      align-items: flex-end;
      transition: flex 0.5s ease-in-out;
-     background-color: #050b14;
+     background-color: #0E1B2D;
  }
 
  #kidImg {
@@ -666,7 +748,7 @@
      }
 
      50% {
-         background: #050b14;
+         background: #0E1B2D;
      }
 
      75% {
@@ -684,9 +766,9 @@
      /* Anchors it to the bottom of the TOP half */
      left: 0;
      width: 100%;
-     height: 129px;
+     height: 90px;
      /* Match your intended road height */
-     z-index: 2;
+     z-index: 5;
  }
 
  .ground {
@@ -721,7 +803,7 @@
      position: absolute;
      height: 50px;
      /* Standardized height for jump logic */
-     z-index: 5;
+     z-index: 2;
      bottom: 80px;
      /* bottom is set dynamically in JS to match the floor */
  }
@@ -731,10 +813,10 @@
      top: 20px;
      left: 50%;
      transform: translateX(-50%);
-     width: 250px;
-     height: 20px;
-     background: rgba(0, 0, 0, 0.2);
-     border: 3px solid white;
+     width: 200px;
+     height: 10px;
+     background: none;
+     border: 1.5px solid var(--white);
      border-radius: 15px;
      z-index: 20;
      overflow: hidden;
@@ -742,6 +824,6 @@
 
  #progress-bar {
      height: 100%;
-     background: #4CAF50;
+     background: var(--white);
      width: 0%;
  }

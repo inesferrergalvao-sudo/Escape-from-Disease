@@ -12,14 +12,17 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/market/market.png');
+            background: url('assets/park/background_park.png');
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+            background-size: auto 100%;
         }
 
         #game-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(#87CEEB, #E0F6FF);
+            background: none;
             overflow: hidden;
             opacity: 0;
             transition: opacity 0.5s ease;
@@ -27,6 +30,10 @@
 
         #game-container.visible {
             opacity: 1;
+        }
+
+        h3 {
+            margin-bottom: 10px;
         }
 
         /*
@@ -92,29 +99,27 @@
             <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer;">REPETIR</button>
         </div>
 
-        <div id="layer-city" class="layer"></div>
-        <div id="layer-trees" class="layer"></div>
-        <div id="layer-ground"></div>
-
         <div id="runner-container">
             <div id="runner"></div>
         </div>
 
         <div id="ui-top">
             <div class="bar-container">
-                PROGRESSO DA PROVA
+                DISTÂNCIA
                 <div class="bar-bg">
                     <div id="level-progress"></div>
                 </div>
             </div>
-        </div>
 
-        <div id="ui-bottom">
-            <div class="rhythm-timer">ALTERA O RITMO EM: <span id="timer-text">5.0</span>s</div>
-            <input type="range" id="speed-slider" min="7" max="64" value="30">
-            <div class="bar-bg" style="width:300px; height:10px; border:none; background:#ddd; margin-top:5px;">
-                <div id="stagnation-bar"></div>
+            <div id="ui-bottom">
+                <h3>AJUSTA AQUI O RITMO</h3>
+                <input type="range" id="speed-slider" min="7" max="64" value="30">
+                <div class="bar-bg">
+                    <div id="stagnation-bar"></div>
+                </div>
+                <div class="rhythm-timer">ALTERA O RITMO EM: <span id="timer-text">5.0</span>s</div>
             </div>
+            <div id="rhythm-message" class="hidden"></div>
         </div>
     </div>
 
@@ -139,29 +144,20 @@
 
     <script src="scripts/general.js"></script>
     <script>
-        let gameActive = false;
+let gameActive = false;
         let distance = 0;
         const goal = 5000;
         let timerToChange = 5.0;
         let lastSliderVal = 30;
+        let bgPos = 0;
 
         let currentSmoothSpeed = 30;
         let targetSpeed = 30;
-        let bgOffsetCity = 0;
-        let bgOffsetTrees = 0;
 
-        // Frames e Pre-loading
         const framePaths = [
             'assets/park/Runner1.png', 'assets/park/Runner2.png', 'assets/park/Runner3.png', 'assets/park/Runner4.png',
             'assets/park/Runner5.png', 'assets/park/Runner6.png', 'assets/park/Runner7.png', 'assets/park/Runner8.png'
         ];
-        const frameImages = [];
-        framePaths.forEach(path => {
-            const img = new Image();
-            img.src = path;
-            frameImages.push(img);
-        });
-
         let currentFrame = 0;
         let lastFrameTime = 0;
 
@@ -171,11 +167,30 @@
         const stagBar = document.getElementById('stagnation-bar');
         const timerText = document.getElementById('timer-text');
         const overScreen = document.getElementById('game-over-screen');
+        const messageEl = document.getElementById('rhythm-message');
+        const messages = ["Boa!", "Mais rápido!", "Mantém o ritmo!", "Excelente!", "Cuidado!"];
 
         function initMiniGame() {
             gameActive = true;
             requestAnimationFrame(update);
         }
+
+        function showRhythmFeedback() {
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            messageEl.innerText = randomMsg;
+            messageEl.classList.remove('hidden');
+            setTimeout(() => {
+                messageEl.classList.add('hidden');
+            }, 1000);
+        }
+
+        slider.addEventListener('input', () => {
+            const currentVal = parseInt(slider.value);
+            // Show message only on significant changes
+            if (Math.abs(currentVal - lastSliderVal) > 10) {
+                showRhythmFeedback();
+            }
+        });
 
         function update(timestamp) {
             if (!gameActive) return;
@@ -183,11 +198,11 @@
             targetSpeed = parseInt(slider.value);
             currentSmoothSpeed += (targetSpeed - currentSmoothSpeed) * 0.1;
 
-            bgOffsetCity -= currentSmoothSpeed * 0.05;
-            bgOffsetTrees -= currentSmoothSpeed * 0.15;
-            document.getElementById('layer-city').style.transform = `translateX(${bgOffsetCity % window.innerWidth}px)`;
-            document.getElementById('layer-trees').style.transform = `translateX(${bgOffsetTrees % window.innerWidth}px)`;
+            // 1. Move Background (Right to Left)
+            bgPos -= currentSmoothSpeed * 0.2;
+            document.body.style.backgroundPosition = `${bgPos}px bottom`;
 
+            // 2. Runner Animation
             let frameInterval = 200 - (currentSmoothSpeed * 2.2);
             if (timestamp - lastFrameTime > frameInterval) {
                 runnerEl.style.backgroundImage = `url(${framePaths[currentFrame]})`;
@@ -195,25 +210,26 @@
                 lastFrameTime = timestamp;
             }
 
+            // 3. Distance Progress
             distance += currentSmoothSpeed * 0.1;
             levelBar.style.width = Math.min((distance / goal) * 100, 100) + '%';
 
+            // 4. Stagnation Bar Logic
             if (Math.abs(targetSpeed - lastSliderVal) > 4) {
-                timerToChange = 5.0;
+                timerToChange = 5.0; // Reset
                 lastSliderVal = targetSpeed;
             } else {
-                timerToChange = Math.max(0, timerToChange - 0.016);
+                timerToChange = Math.max(0, timerToChange - 0.016); // Countdown
             }
 
             timerText.innerText = timerToChange.toFixed(1);
             stagBar.style.width = (timerToChange / 5 * 100) + '%';
 
-            // --- LÓGICA DE FIM DE JOGO CORRIGIDA ---
+            // 5. Win/Loss Conditions
             if (timerToChange <= 0) {
-                // PERDEU: Mostra a tela de Game Over
                 endGame(overScreen);
             } else if (distance >= goal) {
-                // GANHOU: Chama a função de diálogo final do general.js
+                document.getElementById('game-container').style.display = 'none';
                 endGame(openEndDialogue);
             } else {
                 requestAnimationFrame(update);
@@ -221,35 +237,29 @@
         }
 
         function resetGame() {
-            // Esconde a tela de game over
             overScreen.classList.add('hidden');
             overScreen.style.display = 'none';
-
-            // Reinicia variáveis
             distance = 0;
             timerToChange = 5.0;
             lastSliderVal = 30;
             currentSmoothSpeed = 30;
             targetSpeed = 30;
-
-            // Reinicia UI
+            bgPos = 0;
+            document.body.style.backgroundPosition = `0px bottom`;
             levelBar.style.width = '0%';
             stagBar.style.width = '100%';
             timerText.innerText = '5.0';
             slider.value = 30;
-
-            // Recomeça o jogo
             initMiniGame();
         }
 
         function endGame(screenToShow) {
             gameActive = false;
-
             if (typeof screenToShow === "function") {
-                screenToShow(); // Chama openEndDialogue
+                screenToShow(); 
             } else {
                 screenToShow.classList.remove('hidden');
-                screenToShow.style.display = 'flex'; // Garante visibilidade
+                screenToShow.style.display = 'flex';
             }
         }
 
@@ -259,8 +269,7 @@
             progress[pageName] = true;
             localStorage.setItem('gameProgress', JSON.stringify(progress));
             window.location.href = 'home.html';
-        }
-    </script>
+        }    </script>
 </body>
 
 </html>

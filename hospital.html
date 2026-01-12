@@ -26,8 +26,8 @@
             opacity: 0;
             transition: opacity 0.5s ease;
             margin-top: 80px;
-            background: white;
-            padding: 24px 40px;
+            background: #f5f5f5;
+            padding: 32px 40px;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, .12);
         }
@@ -76,7 +76,21 @@
     </div>
 
     <div id="game-container">
-        <div class="help">HELP</div>
+        <div class="help">
+            <button id="openPopup">?</button>
+        </div>
+
+        <div id="popupOverlay" class="overlay" style="display:none;">
+            <div class="popup-card">
+                <div class="popup-header">
+                    <h2>Ajuda!</h2>
+                    <button id="closePopup" class="close-btn">&times;</button>
+                </div>
+                <div class="popup-body">
+                    <img src="assets/hospital/help.svg" alt="Crossword Hint">
+                </div>
+            </div>
+        </div>
         <div class="container">
             <div id="grid" class="grid"></div>
             <div class="clues-container">
@@ -128,6 +142,29 @@
 
     <script src="scripts/general.js"></script>
     <script>
+        /* pop-up help*/
+        const openBtn = document.querySelector('.help #openPopup');
+        const closeBtn = document.getElementById('closePopup');
+        const overlay = document.getElementById('popupOverlay');
+
+        // Open
+        openBtn.addEventListener('click', () => {
+            overlay.style.display = 'block';
+        });
+
+        // Close
+        closeBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+        });
+
+        // Close if clicking the dark area
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.style.display = 'none';
+            }
+        });
+        /*crossword*/
+
         let words, cells = {}, selectedCell = null, activeWord = null;
 
         function initMiniGame() {
@@ -274,6 +311,7 @@
 
         function closeQuitPopup() { document.getElementById('popup-quit').style.display = 'none'; }
         function confirmQuit() { window.location.href = 'home.html'; }
+
         function concludeGame() {
             let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
 

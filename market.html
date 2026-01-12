@@ -26,6 +26,7 @@
             /* Importante: esconde itens fora da tela */
             opacity: 0;
             transition: opacity 0.5s ease;
+            background-color: #F0EBD7;
         }
 
         #game-container.visible {
@@ -154,6 +155,7 @@
             progressFill.style.width = percentage + '%';
 
             if (score >= targetScore) {
+                document.getElementById('game-container').style.opacity= 0;
                 endGame(openEndDialogue);
             } else if (score < 0) {
                 endGame(gameOverScreen);

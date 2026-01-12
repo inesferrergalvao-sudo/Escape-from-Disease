@@ -13,7 +13,7 @@
             padding: 0;
             overflow: hidden;
             background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-                url('assets/market/market.png');
+                url('assets/house/background_house.png');
             background-repeat: no-repeat;
 
             /* FIX: Make it cover the whole screen */
@@ -115,7 +115,7 @@
         </div>
 
         <div id="game-over-screen">
-            <h1 style="color:white; font-family:'Arial Black'; font-size: 3rem;">GAME OVER</h1>
+            <h1 style="color:white; font-size: 3rem;">GAME OVER</h1>
             <p style="color:white; font-size: 1.2rem;">A ovelha tropeçou!</p>
             <button onclick="resetGame()" style="background:none; border:none; cursor:pointer; margin-top:20px;">
                 <img src="assets/general/jogar.svg" style="width:180px;">
@@ -152,8 +152,8 @@
         const gameOverScreen = document.getElementById("game-over-screen");
 
         const TOTAL_TIME = 30000;
-        const GROUND_HEIGHT = 128;
-        const LANDING_Y = GROUND_HEIGHT - 5;
+        const GROUND_HEIGHT = 90;
+        const LANDING_Y = GROUND_HEIGHT-3;
 
 
 
@@ -184,7 +184,7 @@
             obstacle.className = 'obstacle';
             obstacle.src = Math.random() > 0.5 ? 'assets/house/flor.svg' : 'assets/house/arbusto.svg';
             obstacle.style.left = window.innerWidth + 'px';
-            obstacle.style.bottom = GROUND_HEIGHT + 'px';
+            obstacle.style.bottom = LANDING_Y + 'px';
             obstacle.style.height = '40px';
             gameTopHalf.appendChild(obstacle);
             bushes.push(obstacle);
