@@ -1,2 +1,2 @@
 # Escape from Disease
-Educational Game about Atheroscleroses
+Educational Game about Atherosclerosis
