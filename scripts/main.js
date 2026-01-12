@@ -12,8 +12,6 @@ const msg2 = document.getElementById('msg2');
 const comecarBtn = document.getElementById('comecar-btn');
 const fadeOverlay = document.getElementById('fade-overlay');
 
-// --- INITIAL PAGE LOAD ---
-
 document.addEventListener('DOMContentLoaded', () => {
     if (fadeOverlay) {
         setTimeout(() => fadeOverlay.classList.add('fade-out'), 100);
@@ -35,11 +33,11 @@ if (playBtn) {
 }
 
 function startPageTransition() {
-    // Stage 1: Fade the background and start logo growth
+    // Fade the background and start logo
     bodyEl.classList.add('frame2');
-    bodyEl.classList.add('body-ready'); // This triggers the scale(1)
+    bodyEl.classList.add('body-ready');
 
-    // Stage 2: Wait for logo to finish (approx 800ms-1s) then show play button
+    //  Wait for logo to finish then show play button
     setTimeout(() => {
         bodyEl.classList.add('controls-visible');
     }, 1000); 
@@ -116,12 +114,11 @@ function enableInteraction() {
     if (msg2) msg2.onclick = handleClick;
 }
 
-// Hover effects
+//--- Hover effects ---
 const playBtnContainer = document.getElementById('playBtn');
 const playImg = document.querySelector('.play-image');
 
 if (playBtnContainer && playImg) {
-    // Use mouseenter/mouseleave for more stable image swapping
     playBtnContainer.addEventListener('mouseenter', () => {
         playImg.src = 'assets/general/Play_hover.svg';
     });
@@ -135,7 +132,6 @@ if (playBtnContainer && playImg) {
 const comecarBtnContainer = document.getElementById('comecar-btn');
 
 if (comecarBtnContainer) {
-    // Use mouseenter/mouseleave for more stable image swapping
     comecarBtnContainer.addEventListener('mouseenter', () => {
         comecarBtnContainer.src = 'assets/general/comecar_hover.svg';
     });

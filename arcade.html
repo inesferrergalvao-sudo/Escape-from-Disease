@@ -22,26 +22,23 @@
             overflow: hidden;
             font-family: var(--retro-font);
             background-color: black;
-            /* Initial background with image */
             background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/arcade/arcade_background.png');
             background-repeat: no-repeat;
             background-position: center bottom;
             background-size: 100% auto;
             transition: background 0.5s ease;
-            /* Smooth transition when background changes */
         }
 
         /* Class to remove background image when game starts */
         body.game-running {
             background: #1a1a1a;
-            /* Solid dark grey/black for better focus on gameplay */
         }
 
         #game-container {
             width: 100vw;
             height: calc(100vh - 80px);
             position: relative;
-            margin-top: 80px;
+            margin-top: 50px;
             z-index: 10;
             display: none;
             flex-direction: column;
@@ -54,6 +51,22 @@
 
         #game-container.visible {
             display: flex !important;
+        }
+
+        .overlay-screen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            width: 500px;
+            border: 0px;
         }
     </style>
 </head>
@@ -137,11 +150,14 @@
         </div>
     </div>
 
-        <div id="popup-quit" class="overlay-screen" style="display:none;">
+    <div id="popup-quit" class="overlay-screen" style="display:none;">
         <div class="popup-content">
-            <h3>Sair do nível?</h3>
-            <button onclick="confirmQuit()">SIM</button>
-            <button onclick="closeQuitPopup()">NÃO</button>
+            <h3>Tens a certeza que queres sair??</h3>
+            <p>Ao clicares em “Sair do jogo” as tuas respostas não serão guardadas!</p>
+            <button id="stayBtn" class="quit-buttons" onclick="closeQuitPopup()"><img src="assets/general/continuar_jogo.svg"
+                    alt=""></button>
+            <button id="quitBtn" class="quit-buttons" onclick="confirmQuit()"><img src="assets/general/sair_jogo.svg" alt=""></button>
+
         </div>
     </div>
 
@@ -150,8 +166,8 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        let FAT_SIZE = 200;
-        let ORGAN_SIZE = 220;
+        let FAT_SIZE = 50;
+        let ORGAN_SIZE = 100;
         let LAUNCHER_X, LAUNCHER_Y;
         let gameActive = false;
         let currentLevel = 'heart';
@@ -207,10 +223,10 @@
 
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
 
-            const colSpacing = 200;
-            const rowSpacing = 200;
+            const colSpacing = 50;
+            const rowSpacing = 50;
             const cols = Math.floor((canvas.width - 40) / colSpacing);
-            const rows = 2;
+            const rows = 4;
             const startX = (canvas.width - (cols * colSpacing)) / 2 + (colSpacing / 2);
 
             for (let row = 0; row < rows; row++) {
@@ -310,7 +326,6 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // ONLY DRAW GAME ELEMENTS IF GAME IS ACTIVE
-            // This hides the launcher/organ during the start screen
             if (gameActive) {
                 const organ = currentLevel === 'heart' ? assets.bgHeart : assets.bgBrain;
                 drawImageProportional(organ, canvas.width / 2, 140, ORGAN_SIZE, ORGAN_SIZE);

@@ -35,6 +35,22 @@
         #game-container.visible {
             opacity: 1;
         }
+
+        .overlay-screen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            width: 500px;
+            border: 0px;
+        }
     </style>
 </head>
 
@@ -134,9 +150,13 @@
 
     <div id="popup-quit" class="overlay-screen" style="display:none;">
         <div class="popup-content">
-            <h3>Sair do nível?</h3>
-            <button onclick="confirmQuit()">SIM</button>
-            <button onclick="closeQuitPopup()">NÃO</button>
+            <h3>Tens a certeza que queres sair??</h3>
+            <p>Ao clicares em “Sair do jogo” as tuas respostas não serão guardadas!</p>
+            <button id="stayBtn" class="quit-buttons" onclick="closeQuitPopup()"><img
+                    src="assets/general/continuar_jogo.svg" alt=""></button>
+            <button id="quitBtn" class="quit-buttons" onclick="confirmQuit()"><img src="assets/general/sair_jogo.svg"
+                    alt=""></button>
+
         </div>
     </div>
 
@@ -163,7 +183,8 @@
                 overlay.style.display = 'none';
             }
         });
-        /*crossword*/
+
+        // --- CROSSWORD
 
         let words, cells = {}, selectedCell = null, activeWord = null;
 
@@ -279,7 +300,7 @@
                     return text === w.answer[i];
                 });
 
-                // Turn cells green for this specific word if correct
+                // Turn cells green if specific word is correct
                 w.positions.forEach(p => {
                     cells[`${p[0]},${p[1]}`].classList.toggle("correct", wordIsCorrect);
                 });
@@ -287,7 +308,6 @@
                 if (!wordIsCorrect) allWordsCorrect = false;
             });
 
-            // Update the Sidebar Panel
             const panel = document.getElementById('status-panel');
             const btn = document.getElementById('conclude-btn');
 
@@ -315,14 +335,12 @@
         function concludeGame() {
             let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
 
-            // Get the current filename (e.g., "hospital")
             const pageName = window.location.pathname.split("/").pop().split(".")[0];
 
             // Save progress
             progress[pageName] = true;
             localStorage.setItem('gameProgress', JSON.stringify(progress));
 
-            // Always go back to home.html to see the updated map/button
             window.location.href = 'home.html';
         }
     </script>

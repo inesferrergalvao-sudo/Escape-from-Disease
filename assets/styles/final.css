@@ -31,7 +31,6 @@
 
  .settings-nav {
      position: relative;
-     /* Change from fixed to relative */
      top: 0;
      right: 40px;
  }
@@ -58,11 +57,9 @@
      width: 100vw;
      height: 100vh;
      display: flex;
-     /* Changed from grid to flex for better vertical control */
      flex-direction: column;
      align-items: center;
      justify-content: flex-end;
-     /* Keeps buildings sitting on the ground */
      overflow: hidden;
      z-index: 2;
      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -118,13 +115,11 @@
      display: block;
  }
 
- /* 5. THE GROUND */
+
  .ground-container {
      width: 100%;
      flex-grow: 1;
-     /* This makes the ground fill all remaining space to the bottom */
      max-height: 10vh;
-     /* Ensures it never disappears on short screens */
      position: relative;
      z-index: 10;
      display: flex;
@@ -135,7 +130,6 @@
      width: 100%;
      height: 100%;
      object-fit: cover;
-     /* Ensures the ground texture stretches/fills without distortion */
      object-position: bottom;
  }
 

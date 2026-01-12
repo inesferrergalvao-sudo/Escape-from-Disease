@@ -15,19 +15,13 @@
             background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
                 url('assets/house/background_house.png');
             background-repeat: no-repeat;
-
-            /* FIX: Make it cover the whole screen */
             background-size: cover;
-
-            /* FIX: Center the image so it scales nicely on different screens */
             background-position: center;
 
         }
 
-        /* Essential for general.js and the split-screen look */
         #game-container {
             display: none;
-            /* Hidden until general.js calls startGame */
             flex-direction: column;
             width: 100vw;
             height: calc(100vh - 70px);
@@ -40,7 +34,6 @@
             display: flex;
         }
 
-        /* Overlay for Game Over on top of full screen image */
         #game-over-screen {
             display: none;
             position: absolute;
@@ -49,11 +42,26 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            /* Dim the Energy/Tired image slightly */
             z-index: 1000;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        .overlay-screen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            width: 500px;
+            border: 0px;
         }
     </style>
 </head>
@@ -134,11 +142,15 @@
         </div>
     </div>
 
-        <div id="popup-quit" class="overlay-screen" style="display:none;">
+    <div id="popup-quit" class="overlay-screen" style="display:none;">
         <div class="popup-content">
-            <h3>Sair do nível?</h3>
-            <button onclick="confirmQuit()">SIM</button>
-            <button onclick="closeQuitPopup()">NÃO</button>
+            <h3>Tens a certeza que queres sair??</h3>
+            <p>Ao clicares em “Sair do jogo” as tuas respostas não serão guardadas!</p>
+            <button id="stayBtn" class="quit-buttons" onclick="closeQuitPopup()"><img
+                    src="assets/general/continuar_jogo.svg" alt=""></button>
+            <button id="quitBtn" class="quit-buttons" onclick="confirmQuit()"><img src="assets/general/sair_jogo.svg"
+                    alt=""></button>
+
         </div>
     </div>
 
@@ -153,7 +165,7 @@
 
         const TOTAL_TIME = 30000;
         const GROUND_HEIGHT = 90;
-        const LANDING_Y = GROUND_HEIGHT-3;
+        const LANDING_Y = GROUND_HEIGHT - 3;
 
 
 
@@ -210,23 +222,17 @@
             gameRunning = true;
             landingComplete = false;
 
-            // Layout Reset
-            // bushes.forEach(b => b.remove());
-            //bushes = [];
-
             velocity = 0;
             gameTopHalf.style.display = "block";
             sleepScene.style.display = "flex";
 
-            //gameOverScreen.style.display = "none";
             document.getElementById("kidImg").style.display = "block";
             gameContainer.style.backgroundImage = "none";
             gameContainer.style.backgroundColor = "black";
 
-            // sleepScene.style.backgroundImage = "url('assets/house/dormir.svg')";
             gameTopHalf.classList.remove('sky-animate');
 
-            // Fall animation from top
+            // sheep falls
             sheep.style.bottom = "600px";
             update();
         }
@@ -281,7 +287,7 @@
 
         function endGame(won) {
             gameRunning = false;
-            clearTimeout(obstacleTimeout); // Use clearTimeout here
+            clearTimeout(obstacleTimeout);
             cancelAnimationFrame(loopId);
 
             gameTopHalf.style.display = "none";

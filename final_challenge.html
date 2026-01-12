@@ -42,6 +42,18 @@
             </div>
         </div>
 
+        <div id="popup-quit" class="overlay-screen" style="display:none;">
+            <div class="popup-content">
+                <h3>Tens a certeza que queres sair??</h3>
+                <p>Ao clicares em “Sair do jogo” as tuas respostas não serão guardadas!</p>
+                <button id="stayBtn" class="quit-buttons" onclick="closeQuitPopup()"><img
+                        src="assets/general/continuar_jogo.svg" alt=""></button>
+                <button id="quitBtn" class="quit-buttons" onclick="confirmQuit()"><img
+                        src="assets/general/sair_jogo.svg" alt=""></button>
+
+            </div>
+        </div>
+
         <div id="dialogue-overlay">
             <div id="container-1" class="dialogue-wrapper">
                 <img src="assets/general/dialogue.svg" class="dialogue-img">
@@ -67,6 +79,8 @@
         <button class="choice-btn" onclick="retryGame()">Tentar Novamente</button>
     </div>
 
+
+
     <div id="final-sequence">
         <div class="magic-flash" id="magic-flash"></div>
         <img src="assets/final/25.png" class="final-frame" id="f25">
@@ -82,7 +96,7 @@
         let timeLeft = 30;
         let timerInterval = null;
 
-                const quizData = [
+        const quizData = [
             { q: "Qual é a maior artéria do corpo humano?", a: ["Aorta", "Coronárias", "Ilíaca Externa", "Arteríolas"], c: "Aorta" },
             { q: "O que caracteriza a aterosclerose?", a: ["Placas de gordura", "Inflamação renal", "Fraqueza óssea", "Pele seca"], c: "Placas de gordura" },
             { q: "Qual destes é um fator de risco?", a: ["Sedentarismo", "Beber água", "Dormir cedo", "Ler livros"], c: "Sedentarismo" },
@@ -182,20 +196,19 @@
                                 const flash = document.getElementById('magic-flash');
                                 flash.classList.add('burst-active');
 
-                                // Smooth crossfade: 31 starts fading in while 27 is still there
+                                // 31 starts fading in while 27 is still there
                                 setTimeout(() => {
                                     document.getElementById('f31').classList.add('active');
                                     setTimeout(() => {
                                         currentImg.classList.remove('active', 'shaking');
-                                        i = 3; 
+                                        i = 3;
                                         setTimeout(nextFrame, 2000);
-                                    }, 400); 
+                                    }, 400);
                                 }, 600);
-                            }, 2500); 
+                            }, 2500);
                         }, 1000);
                     }
                     else {
-                        // Standard frame sequence
                         if (i > 0) document.getElementById(frames[i - 1]).classList.remove('active');
                         currentImg.classList.add('active');
 

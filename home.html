@@ -87,12 +87,11 @@
             const overlay = document.getElementById('fade-overlay');
             const levelBtns = document.querySelectorAll('.level-btn');
 
-            // --- 1. DATA & PROGRESS (Keep this) ---
             const progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
             const requiredGames = ['hospital', 'market', 'park', 'arcade', 'house'];
             let completedCount = 0;
 
-            // --- 2. GRAY OUT BUILDINGS (Keep this) ---
+            //  GRAY OUT BUILDINGS
             requiredGames.forEach(game => {
                 if (progress[game]) {
                     completedCount++;
@@ -106,7 +105,7 @@
                 }
             });
 
-            // --- 3. NEW: SHOW FINAL BUTTON (Add this here) ---
+            // SHOW FINAL BUTTON ---
             const finalBtn = document.getElementById('final-challenge-btn');
             if (completedCount === requiredGames.length) {
                 if (finalBtn) {
@@ -114,13 +113,12 @@
                 }
             }
 
-            // --- 4. ANIMATIONS & FADES (Keep all of this!) ---
-            // This is what handles your "fade from black"
+            // --- ANIMATIONS & FADES---
             setTimeout(() => {
                 if (overlay) overlay.classList.add('fade-out');
             }, 100);
 
-            // This is what makes the buildings drop (Waterfall)
+            // Waterfall
             setTimeout(() => {
                 scene.classList.add('active');
                 setTimeout(() => {
@@ -128,8 +126,6 @@
                 }, 1200);
             }, 500);
 
-            // --- 5. NAVIGATION LOGIC (Update to include the new button) ---
-            // Combine all clickable buttons (Building buttons + Final button)
             const allButtons = [...levelBtns];
             if (finalBtn) allButtons.push(finalBtn);
 

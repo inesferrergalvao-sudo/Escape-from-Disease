@@ -28,11 +28,9 @@
      width: 100vw;
      height: 100vh;
      display: flex;
-     /* Changed from grid to flex for better vertical control */
      flex-direction: column;
      align-items: center;
      justify-content: flex-end;
-     /* Keeps buildings sitting on the ground */
      overflow: hidden;
  }
 
@@ -58,14 +56,12 @@
      width: 90%;
      max-width: 1500px;
      z-index: 5;
-     /* This ensures buildings stay attached to the top of the ground */
      margin-bottom: -3px;
  }
 
  .building-wrapper {
      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
      transform: translateY(100vh);
-     /* Start off-screen for waterfall */
  }
 
  .building {
@@ -74,7 +70,7 @@
      display: block;
  }
 
- /* 3. "GO" BUTTON OVERLAP (SOBREPOSIÇÃO) */
+
  .level-btn {
      position: absolute;
      top: 50%;
@@ -97,7 +93,7 @@
      display: none;
  }
 
- /* When hovering the button: hide default, show hover */
+ 
  .level-btn:hover .img-default {
      display: none;
  }
@@ -106,11 +102,10 @@
      display: block;
  }
 
- /* Optional: Ensure images don't break the button centering */
+
  .level-btn img {
      display: block;
      width: 150px;
-     /* Or your specific width */
      height: auto;
  }
 
@@ -139,7 +134,7 @@
      transition-delay: 0.32s;
  }
 
- /* 4. HOVER INTERACTION */
+ /* HOVER INTERACTION */
  .hover-ready .building-wrapper {
      pointer-events: auto;
  }
@@ -156,7 +151,6 @@
  }
 
 
- /* Proportions */
  .w-hospital {
      width: 25vw;
      max-width: 400px;
@@ -188,13 +182,11 @@
  }
 
 
- /* 5. THE GROUND */
  .ground-container {
      width: 100%;
      flex-grow: 1;
-     /* This makes the ground fill all remaining space to the bottom */
+  
      max-height: 10vh;
-     /* Ensures it never disappears on short screens */
      position: relative;
      z-index: 2;
      display: flex;
@@ -205,7 +197,6 @@
      width: 100%;
      height: 100%;
      object-fit: cover;
-     /* Ensures the ground texture stretches/fills without distortion */
      object-position: top;
  }
 
@@ -220,7 +211,6 @@
      cursor: default;
  }
 
- /* Hide the "Visitar" button for completed buildings */
  .building-wrapper.completed .level-btn {
      display: none !important;
  }
@@ -231,7 +221,6 @@
      right: 30px;
      padding: 15px 30px;
      background-color: #facc15;
-     /* Gold/Yellow color */
      color: #7b090b;
      border: 4px solid #7b090b;
      border-radius: 50px;

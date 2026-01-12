@@ -36,23 +36,21 @@
             margin-bottom: 10px;
         }
 
-        /*
-        .overlay {
+        .overlay-screen {
+            display: none;
             position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
             text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            width: 500px;
+            border: 0px;
         }
-
-        .hidden {
-            display: none !important;
-        }*/
     </style>
 </head>
 
@@ -136,15 +134,19 @@
 
     <div id="popup-quit" class="overlay-screen" style="display:none;">
         <div class="popup-content">
-            <h3>Sair do nível?</h3>
-            <button onclick="confirmQuit()">SIM</button>
-            <button onclick="closeQuitPopup()">NÃO</button>
+            <h3>Tens a certeza que queres sair??</h3>
+            <p>Ao clicares em “Sair do jogo” as tuas respostas não serão guardadas!</p>
+            <button id="stayBtn" class="quit-buttons" onclick="closeQuitPopup()"><img
+                    src="assets/general/continuar_jogo.svg" alt=""></button>
+            <button id="quitBtn" class="quit-buttons" onclick="confirmQuit()"><img src="assets/general/sair_jogo.svg"
+                    alt=""></button>
+
         </div>
     </div>
 
     <script src="scripts/general.js"></script>
     <script>
-let gameActive = false;
+        let gameActive = false;
         let distance = 0;
         const goal = 5000;
         let timerToChange = 5.0;
@@ -175,6 +177,7 @@ let gameActive = false;
             requestAnimationFrame(update);
         }
 
+        //if player changes rythm a message appears
         function showRhythmFeedback() {
             const randomMsg = messages[Math.floor(Math.random() * messages.length)];
             messageEl.innerText = randomMsg;
@@ -186,7 +189,6 @@ let gameActive = false;
 
         slider.addEventListener('input', () => {
             const currentVal = parseInt(slider.value);
-            // Show message only on significant changes
             if (Math.abs(currentVal - lastSliderVal) > 10) {
                 showRhythmFeedback();
             }
@@ -198,11 +200,11 @@ let gameActive = false;
             targetSpeed = parseInt(slider.value);
             currentSmoothSpeed += (targetSpeed - currentSmoothSpeed) * 0.1;
 
-            // 1. Move Background (Right to Left)
+            // Moving Background
             bgPos -= currentSmoothSpeed * 0.2;
             document.body.style.backgroundPosition = `${bgPos}px bottom`;
 
-            // 2. Runner Animation
+            // Runner Animation
             let frameInterval = 200 - (currentSmoothSpeed * 2.2);
             if (timestamp - lastFrameTime > frameInterval) {
                 runnerEl.style.backgroundImage = `url(${framePaths[currentFrame]})`;
@@ -210,22 +212,21 @@ let gameActive = false;
                 lastFrameTime = timestamp;
             }
 
-            // 3. Distance Progress
+            // Progress
             distance += currentSmoothSpeed * 0.1;
             levelBar.style.width = Math.min((distance / goal) * 100, 100) + '%';
 
-            // 4. Stagnation Bar Logic
+            // tagnation Bar
             if (Math.abs(targetSpeed - lastSliderVal) > 4) {
-                timerToChange = 5.0; // Reset
+                timerToChange = 5.0;
                 lastSliderVal = targetSpeed;
             } else {
-                timerToChange = Math.max(0, timerToChange - 0.016); // Countdown
+                timerToChange = Math.max(0, timerToChange - 0.016);
             }
 
             timerText.innerText = timerToChange.toFixed(1);
             stagBar.style.width = (timerToChange / 5 * 100) + '%';
 
-            // 5. Win/Loss Conditions
             if (timerToChange <= 0) {
                 endGame(overScreen);
             } else if (distance >= goal) {
@@ -256,7 +257,7 @@ let gameActive = false;
         function endGame(screenToShow) {
             gameActive = false;
             if (typeof screenToShow === "function") {
-                screenToShow(); 
+                screenToShow();
             } else {
                 screenToShow.classList.remove('hidden');
                 screenToShow.style.display = 'flex';

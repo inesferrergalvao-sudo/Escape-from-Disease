@@ -1,9 +1,5 @@
-/**
- * GENERAL.JS
- * Shared logic for dialogue transitions, game starts, and navigation.
- */
 
-// 1. Dialogue Transitions: Move from the first text/image to the second
+// 1. Dialogue Transitions
 function toSecondDialogue() {
     const c1 = document.getElementById('container-1');
     const c2 = document.getElementById('container-2');
@@ -14,7 +10,7 @@ function toSecondDialogue() {
 }
 
 
-// 2. Start Game: Hides dialogue, shows navbar, and runs level-specific code
+// 2. Start Game: Hides dialogue, shows navbar, and mini-games
 function startGame() {
     const overlay = document.getElementById('dialogue-overlay');
     const navbar = document.getElementById('navbar');
@@ -37,19 +33,19 @@ function startGame() {
     }
 }
 
-// 3. Navigation & Modal Listeners
+const quitPopup = document.getElementById('popup-quit');
+
+// back button and quit pop-up
+//Rever (antes não funcionava por isso criei as funções abaixo)
 document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('backBtn');
-    const quitPopup = document.getElementById('popup-quit');
 
-    // Attach click to the back icon (voltar.svg)
     if (backBtn && quitPopup) {
         backBtn.onclick = () => {
             quitPopup.style.display = 'block';
         };
     }
 
-    // Initialize dialogue overlay state
     const diagOverlay = document.getElementById('dialogue-overlay');
     if (diagOverlay) {
         diagOverlay.style.opacity = '1';
@@ -58,8 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Helper: Close the quit confirmation modal
-const quitPopup = document.getElementById('popup-quit');
 function openQuitPopup() {
     if (quitPopup) quitPopup.style.display = 'block';
 }
@@ -68,12 +62,12 @@ function closeQuitPopup() {
     if (quitPopup) quitPopup.style.display = 'none';
 }
 
-// Helper: Return to the map
 function confirmQuit() {
     window.location.href = 'home.html';
 }
 
-// 4. Success Logic: Called when a mini-game is won
+
+// win mini-game
 function showSuccess() {
     const successPopup = document.getElementById('popup-success');
     if (successPopup) successPopup.style.display = 'block';
@@ -100,10 +94,32 @@ function toNextEndStep(currentStep, nextStep) {
 
 
 function isGameFinished() {
-    // These must exactly match your filenames (hospital.html, market.html, etc.)
     const requiredGames = ['hospital', 'market', 'park', 'arcade', 'house'];
     const progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
     
-    // Returns true only if every game in the list is marked as true in localStorage
     return requiredGames.every(game => progress[game] === true);
+}
+
+
+const quitBtn= document.getElementById('quitBtn');
+const stayBtn= document.getElementById('stayBtn');
+
+if (quitBtn) {
+    quitBtn.addEventListener('mouseenter', () => {
+        quitBtn.src = 'assets/general/sair_jogo_hover.svg';
+    });
+
+    quitBtn.addEventListener('mouseleave', () => {
+        quitBtn.src = 'assets/general/sair_jogo.svg';
+    });
+}
+
+if (stayBtn) {
+    stayBtn.addEventListener('mouseenter', () => {
+        stayBtn.src = 'assets/general/continuar_jogo_hover.svg';
+    });
+
+    stayBtn.addEventListener('mouseleave', () => {
+        stayBtn.src = 'assets/general/continuar_jogo.svg';
+    });
 }

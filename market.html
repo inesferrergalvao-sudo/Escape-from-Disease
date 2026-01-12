@@ -23,7 +23,6 @@
             height: 100vh;
             position: relative;
             overflow: hidden;
-            /* Importante: esconde itens fora da tela */
             opacity: 0;
             transition: opacity 0.5s ease;
             background-color: #F0EBD7;
@@ -31,6 +30,22 @@
 
         #game-container.visible {
             opacity: 1;
+        }
+
+        .overlay-screen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            width: 500px;
+            border: 0px;
         }
     </style>
 </head>
@@ -104,9 +119,13 @@
 
     <div id="popup-quit" class="overlay-screen" style="display:none;">
         <div class="popup-content">
-            <h3>Sair do nível?</h3>
-            <button onclick="confirmQuit()">SIM</button>
-            <button onclick="closeQuitPopup()">NÃO</button>
+            <h3>Tens a certeza que queres sair??</h3>
+            <p>Ao clicares em “Sair do jogo” as tuas respostas não serão guardadas!</p>
+            <button id="stayBtn" class="quit-buttons" onclick="closeQuitPopup()"><img
+                    src="assets/general/continuar_jogo.svg" alt=""></button>
+            <button id="quitBtn" class="quit-buttons" onclick="confirmQuit()"><img src="assets/general/sair_jogo.svg"
+                    alt=""></button>
+
         </div>
     </div>
 
@@ -134,14 +153,13 @@
         // Movement logic
         container.addEventListener('mousemove', (e) => {
             if (!gameActive) return;
-            // Center the cart on mouse, but use the target width (220) for calculations
+            // Center the cart on mouse
             const targetWidth = 220;
             let xPos = e.clientX - targetWidth / 2;
             xPos = Math.max(0, Math.min(xPos, window.innerWidth - targetWidth));
             cart.style.left = xPos + 'px';
         });
 
-        // Esta função é chamada automaticamente pelo general.js quando clicas em JOGAR
         function initMiniGame() {
             gameActive = true;
             cart.classList.add('active');
@@ -155,7 +173,7 @@
             progressFill.style.width = percentage + '%';
 
             if (score >= targetScore) {
-                document.getElementById('game-container').style.opacity= 0;
+                document.getElementById('game-container').style.opacity = 0;
                 endGame(openEndDialogue);
             } else if (score < 0) {
                 endGame(gameOverScreen);
@@ -163,26 +181,21 @@
         }
 
         function resetGame() {
-            // 1. Hide the game over screen
             gameOverScreen.style.display = 'none';
 
             // 2. Reset game variables
             score = 0;
             updateUI();
-
-            // 3. Remove any falling items still on the screen
             const items = document.querySelectorAll('.item');
             items.forEach(item => item.remove());
 
-            // 4. Restart the game logic
             initMiniGame();
         }
 
         function endGame(screenToShow) {
             gameActive = false;
-            clearInterval(spawnInterval); // Stops new items from appearing
+            clearInterval(spawnInterval);
 
-            // Check if target is a function (like openEndDialogue) or a DOM element
             if (typeof screenToShow === "function") {
                 screenToShow();
             } else {
@@ -225,7 +238,7 @@
                 const cartRect = cart.getBoundingClientRect();
                 const itemRect = item.getBoundingClientRect();
 
-                // Collision Detection
+                // detect collision
                 if (
                     itemRect.bottom >= cartRect.top + 20 &&
                     itemRect.left < cartRect.right - 20 &&
@@ -246,7 +259,6 @@
         }
 
         function concludeGame() {
-            // Guarda progresso e volta ao mapa
             let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
             progress.market = true;
             localStorage.setItem('gameProgress', JSON.stringify(progress));
