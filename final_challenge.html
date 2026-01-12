@@ -73,8 +73,6 @@
         <img src="assets/final/26.png" class="final-frame" id="f26">
         <img src="assets/final/27.png" class="final-frame" id="f27">
         <img src="assets/final/28.png" class="final-frame" id="f28">
-        <img src="assets/final/29.png" class="final-frame" id="f29">
-        <img src="assets/final/30.png" class="final-frame" id="f30">
         <img src="assets/final/31.png" class="final-frame" id="f31">
         <button id="restart-btn" onclick="location.href='index.html'">RECOMEÇAR</button>
     </div>
@@ -168,14 +166,14 @@
         }
 
         function playFinalSequence() {
-            const frames = ['f25', 'f26', 'f27', 'f28', 'f29', 'f30', 'f31'];
+            const frames = ['f25', 'f26', 'f27', 'f31'];
             let i = 0;
 
             const nextFrame = () => {
                 if (i < frames.length) {
                     const currentImg = document.getElementById(frames[i]);
 
-                    // Transformation logic between 27 and 28
+                    // Transformation logic between 27 and 31
                     if (frames[i] === 'f27') {
                         currentImg.classList.add('active');
                         setTimeout(() => {
@@ -184,16 +182,16 @@
                                 const flash = document.getElementById('magic-flash');
                                 flash.classList.add('burst-active');
 
-                                // Smooth crossfade: 28 starts fading in while 27 is still there
+                                // Smooth crossfade: 31 starts fading in while 27 is still there
                                 setTimeout(() => {
-                                    document.getElementById('f28').classList.add('active');
+                                    document.getElementById('f31').classList.add('active');
                                     setTimeout(() => {
                                         currentImg.classList.remove('active', 'shaking');
-                                        i = 3; // Ensure index is set to f28
+                                        i = 3; 
                                         setTimeout(nextFrame, 2000);
-                                    }, 400); // 27 disappears after 28 is visible
+                                    }, 400); 
                                 }, 600);
-                            }, 2500); // Shaking build-up
+                            }, 2500); 
                         }, 1000);
                     }
                     else {
