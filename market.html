@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mercado - Escape from Disease</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+    <link rel="stylesheet" href="assets/styles/mini_games.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/market/market.png');
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            background-size: 100% auto;
+        }
+
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            /* Importante: esconde itens fora da tela */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #game-container.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar">
+        <img src="assets/general/voltar.svg" class="nav-icon" id="backBtn">
+        <nav class="settings-nav">
+            <div class="nav-content">
+                <div class="utility-icons">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/sound.svg" class="icon-default">
+                        <img src="assets/general/sound_hover.svg" class="icon-hover">
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/music.svg" class="icon-default">
+                        <img src="assets/general/music_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+
+                <div class="main-gear-wrapper">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/settings.svg" class="icon-default">
+                        <img src="assets/general/settings_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div id="dialogue-overlay">
+        <div id="container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toSecondDialogue()">
+        </div>
+        <div id="container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="startGame()">
+        </div>
+    </div>
+
+    <div id="game-container">
+
+        <div id="ui-market">
+            <div id="score-text">Goal: <span id="score">0</span> / 200</div>
+            <div id="progress-wrapper">
+                <div id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="game-over-screen" class="overlay-screen">
+            <h1>GAME OVER</h1>
+            <p>Apanhaste produtos estragados a mais!</p>
+            <button onclick="resetGame()">TENTAR NOVAMENTE</button>
+        </div>
+
+        <div id="cart"></div>
+        <div id="floor"></div>
+    </div>
+
+    <div id="end-dialogue-overlay" class="dialogue-overlay hidden">
+        <div id="end-container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toNextEndStep(1, 2)">
+        </div>
+        <div id="end-container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="concludeGame()">
+        </div>
+    </div>
+
+    <div id="popup-quit" class="overlay-screen" style="display:none;">
+        <div class="popup-content">
+            <h3>Sair do nível?</h3>
+            <button onclick="confirmQuit()">SIM</button>
+            <button onclick="closeQuitPopup()">NÃO</button>
+        </div>
+    </div>
+
+    <script src="scripts/general.js"></script>
+    <script>
+        const healthyImages = ['Healthy_Brocolo.svg', 'Healthy_Banana.svg', 'Healthy_Agua.svg', 'Healthy_Cenoura.svg', 'Healthy_Leite.svg', 'Healthy_Maca.svg'];
+        const junkImages = ['Junk_Refrigerante.svg', 'Junk_Hamburguer.svg', 'Junk_Chocolate.svg', 'Junk_Pizza.svg'];
+        const cartImage = 'cart.svg';
+
+        const container = document.getElementById('game-container');
+        const cart = document.getElementById('cart');
+        const scoreElement = document.getElementById('score');
+        const progressFill = document.getElementById('progress-fill');
+        const gameOverScreen = document.getElementById('game-over-screen');
+
+
+
+        let score = 0;
+        const targetScore = 200;
+        let gameActive = false;
+        let spawnInterval;
+
+        cart.style.backgroundImage = `url('assets/market/${cartImage}')`;
+
+        // Movement logic
+        container.addEventListener('mousemove', (e) => {
+            if (!gameActive) return;
+            // Center the cart on mouse, but use the target width (220) for calculations
+            const targetWidth = 220;
+            let xPos = e.clientX - targetWidth / 2;
+            xPos = Math.max(0, Math.min(xPos, window.innerWidth - targetWidth));
+            cart.style.left = xPos + 'px';
+        });
+
+        // Esta função é chamada automaticamente pelo general.js quando clicas em JOGAR
+        function initMiniGame() {
+            gameActive = true;
+            cart.classList.add('active');
+            container.style.cursor = 'none';
+            spawnInterval = setInterval(createItem, 900);
+        }
+
+        function updateUI() {
+            scoreElement.innerText = score;
+            const percentage = Math.max(0, Math.min((score / targetScore) * 100, 100));
+            progressFill.style.width = percentage + '%';
+
+            if (score >= targetScore) {
+                endGame(openEndDialogue);
+            } else if (score < 0) {
+                endGame(gameOverScreen);
+            }
+        }
+
+        function resetGame() {
+            // 1. Hide the game over screen
+            gameOverScreen.style.display = 'none';
+
+            // 2. Reset game variables
+            score = 0;
+            updateUI();
+
+            // 3. Remove any falling items still on the screen
+            const items = document.querySelectorAll('.item');
+            items.forEach(item => item.remove());
+
+            // 4. Restart the game logic
+            initMiniGame();
+        }
+
+        function endGame(screenToShow) {
+            gameActive = false;
+            clearInterval(spawnInterval); // Stops new items from appearing
+
+            // Check if target is a function (like openEndDialogue) or a DOM element
+            if (typeof screenToShow === "function") {
+                screenToShow();
+            } else {
+                screenToShow.style.display = 'block';
+            }
+
+            container.style.cursor = 'default';
+            cart.classList.remove('active');
+        }
+
+        function createItem() {
+            if (!gameActive) return;
+
+            const isHealthy = Math.random() > 0.4;
+            const imgList = isHealthy ? healthyImages : junkImages;
+            const randomImg = imgList[Math.floor(Math.random() * imgList.length)];
+
+            const item = document.createElement('img');
+            item.src = `assets/market/${randomImg}`;
+            item.classList.add('item');
+
+            const spawnRange = window.innerWidth - 90;
+            item.style.left = Math.random() * spawnRange + 'px';
+            item.style.top = '-100px';
+            container.appendChild(item);
+
+            let yPos = -100;
+            const speed = 3 + Math.random() * 4;
+
+            const fall = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(fall);
+                    item.remove();
+                    return;
+                }
+
+                yPos += speed;
+                item.style.top = yPos + 'px';
+
+                const cartRect = cart.getBoundingClientRect();
+                const itemRect = item.getBoundingClientRect();
+
+                // Collision Detection
+                if (
+                    itemRect.bottom >= cartRect.top + 20 &&
+                    itemRect.left < cartRect.right - 20 &&
+                    itemRect.right > cartRect.left + 20 &&
+                    itemRect.top < cartRect.bottom - 20
+                ) {
+                    score = isHealthy ? score + 10 : score - 20;
+                    updateUI();
+                    clearInterval(fall);
+                    item.remove();
+                }
+
+                if (yPos > window.innerHeight - 100) {
+                    clearInterval(fall);
+                    item.remove();
+                }
+            }, 20);
+        }
+
+        function concludeGame() {
+            // Guarda progresso e volta ao mapa
+            let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
+            progress.market = true;
+            localStorage.setItem('gameProgress', JSON.stringify(progress));
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+
+</html>

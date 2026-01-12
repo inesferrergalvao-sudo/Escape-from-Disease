@@ -1,0 +1,747 @@
+ :root {
+     --bg-color: #ede6d1;
+     --floor-color: #6a6a6a;
+     --success-color: #4CAF50;
+     --danger-color: #f44336;
+ }
+
+ #backBtn{
+    cursor: pointer;
+ }
+ /* DIALOGUE OVERLAY
+ #dialogue-overlay {
+     position: fixed;
+     inset: 0;
+     background: rgba(0, 0, 0, 0.5);
+     z-index: 200 !important;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     opacity: 0;
+     pointer-events: none;
+     transition: opacity 0.5s ease;
+ }
+
+ #end-dialogue-overlay {
+     position: fixed;
+     inset: 0;
+     background: rgba(0, 0, 0, 0.5);
+     z-index: 200 !important;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     opacity: 0;
+     pointer-events: none;
+     transition: opacity 0.5s ease;
+ }
+
+ .dialogue-wrapper {
+     position: relative;
+     pointer-events: auto;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+ }
+
+ .dialogue-img {
+     width: 80vw;
+     max-width: 900px;
+ }
+
+ .btn-svg {
+     width: 200px;
+     cursor: pointer;
+     margin-top: -60px;
+     transition: transform 0.2s;
+ }
+
+ .btn-svg:hover {
+     transform: scale(1.1);
+ }
+
+ .hidden {
+     display: none !important;
+ } */
+
+ /* NAVBAR */
+ #navbar {
+     position: fixed;
+     top: -100px;
+     left: 0;
+     width: 100%;
+     transition: top 0.5s ease;
+     z-index: 50;
+     background: #000;
+     padding: 10px 20px;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+
+ #navbar.active {
+     top: 0;
+ }
+
+ /* POPUP QUIT */
+ .quit-panel {
+     background: #7B090B;
+     border: 4px solid #f5f5f5;
+     border-radius: 30px;
+     padding: 40px;
+     text-align: center;
+ }
+
+ .quit-text {
+     color: #f5f5f5;
+     font-family: 'Bebas Neue', sans-serif;
+     font-size: 24px;
+     margin-bottom: 30px;
+ }
+
+ .quit-buttons {
+     display: flex;
+     justify-content: center;
+     gap: 20px;
+ }
+
+ .quit-btn-img {
+     width: 180px;
+     cursor: pointer;
+     transition: transform 0.2s ease;
+ }
+
+ .quit-btn-img:hover {
+     transform: scale(1.05);
+ }
+
+
+ /* CROSSWORD LAYOUT */
+
+ .help {
+     text-align: right;
+     margin-bottom: 30px;
+ }
+
+ .container {
+     display: flex;
+     flex-direction: row;
+     gap: 30px;
+     align-items: flex-start;
+ }
+
+
+
+ .grid {
+     display: grid;
+     grid-template-columns: repeat(11, 38px);
+     grid-template-rows: repeat(13, 38px);
+     gap: 4px;
+ }
+
+ .cell {
+     position: relative;
+     background: #ffffff;
+     border-radius: 8px;
+     border: 2px solid #c7d2fe;
+     text-align: center;
+     font-size: 18px;
+     font-weight: 700;
+     line-height: 38px;
+     cursor: pointer;
+     user-select: none;
+     transition: all .15s ease;
+ }
+
+ .cell.block {
+     background: transparent;
+     border: none;
+     pointer-events: none;
+ }
+
+ .cell.word-selected {
+     background: #dbeafe;
+ }
+
+ .cell.selected {
+     border-color: #6366f1;
+     box-shadow: 0 0 0 4px #c7d2fe;
+ }
+
+ .cell.correct {
+     background: #dcfce7 !important;
+     /* Soft Green */
+     border-color: #22c55e !important;
+     color: #166534 !important;
+ }
+
+ .number {
+     position: absolute;
+     top: 2px;
+     left: 4px;
+     font-size: 10px;
+     color: #4338ca;
+     line-height: 1;
+ }
+
+ .clues-container {
+     width: 300px;
+     padding-left: 10px;
+ }
+
+ .clues-main-title {
+     font-size: 32px;
+     color: #7B090B;
+     margin: 0 0 15px 0;
+ }
+
+ .clue-text {
+     font-size: 14px;
+     margin: 5px 0;
+     cursor: pointer;
+ }
+
+ .clue-text.active-clue {
+     color: #C50D0D;
+     font-weight: bold;
+ }
+
+ .status-panel {
+     padding: 20px;
+     text-align: center;
+     transition: all 0.4s ease;
+ }
+
+ /* Button States */
+ .conclude-btn {
+     margin-top: 12px;
+     width: 100%;
+     padding: 10px;
+     border-radius: 8px;
+     border: none;
+     font-weight: bold;
+     cursor: pointer;
+     transition: background 0.3s;
+ }
+
+ .conclude-btn.disabled {
+     background-color: #d1d5db;
+     color: #9ca3af;
+     cursor: not-allowed;
+ }
+
+ .status-panel.success .conclude-btn {
+     background-color: #22c55e;
+     color: white;
+ }
+
+ .status-panel.success .conclude-btn:hover {
+     background-color: #16a34a;
+ }
+
+ /* MARKET */
+
+ #floor {
+     position: absolute;
+     bottom: 0;
+     width: 100%;
+     height: 80px;
+     background-color: var(--floor-color);
+     z-index: 1;
+ }
+
+ #score-text {
+     font-size: 28px;
+     font-weight: bold;
+     color: #444;
+     margin-bottom: 10px;
+ }
+
+ #progress-wrapper {
+     width: 100%;
+     height: 20px;
+     background-color: #fff;
+     border-radius: 10px;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     overflow: hidden;
+     border: 2px solid #fff;
+ }
+
+ #progress-fill {
+     width: 0%;
+     height: 100%;
+     background-color: var(--success-color);
+     transition: width 0.3s ease;
+ }
+
+
+
+ #ui-market {
+     position: absolute;
+     top: 10%;
+     left: 50%;
+     transform: translateX(-50%);
+     text-align: center;
+     z-index: 10;
+     width: 400px;
+     font-size: 24px;
+     color: white;
+     background-color: #7B090B;
+     z-index: 20;
+ }
+
+ #cart {
+     /* Start at 0 width */
+     width: 0px;
+     height: 300px;
+     position: absolute;
+     bottom: 60px;
+     z-index: 5;
+     background-size: contain;
+     background-repeat: no-repeat;
+     background-position: center;
+     pointer-events: none;
+     opacity: 0;
+     /* Transition for the 'opening' effect */
+     transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+ }
+
+ /* The class we add via JS to 'grow' the cart */
+ #cart.active {
+     width: 220px;
+     /* This acts as the 'max-width' */
+     opacity: 1;
+ }
+
+ .item {
+     position: absolute;
+     max-width: 80px;
+     max-height: 110px;
+     object-fit: contain;
+     z-index: 4;
+ }
+
+ /* Screens */
+ .overlay-screen {
+     display: none;
+     /* Escondido por padrão */
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     background: white;
+     padding: 40px;
+     border-radius: 15px;
+     text-align: center;
+     box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+     z-index: 100;
+     width: 300px;
+     border: 5px solid #7B090B;
+ }
+
+ #game-over-screen {
+     display: none;
+ }
+
+ #game-over-screen h1 {
+     color: #7B090B;
+     margin-bottom: 10px;
+ }
+
+ h1 {
+     margin-top: 0;
+     color: #333;
+ }
+
+
+ button {
+     background-color: var(--success-color);
+     color: white;
+     border: none;
+     padding: 15px 30px;
+     font-size: 18px;
+     border-radius: 8px;
+     cursor: pointer;
+     transition: transform 0.1s, background 0.2s;
+     margin-top: 10px;
+ }
+
+ button:hover {
+     background-color: #45a049;
+     transform: scale(1.05);
+ }
+
+ #win-screen {
+     display: none;
+ }
+
+
+
+ /* PARK */
+ /* --- CENÁRIO --- */
+ .layer {
+     position: absolute;
+     bottom: 0;
+     left: 0;
+     width: 200%;
+     height: 500px;
+     background-repeat: repeat-x;
+     background-position: bottom;
+     will-change: transform;
+ }
+
+ #layer-city {
+     background-image: url('assets/market/market.png');
+     background-size: contain;
+     height: 400px;
+     z-index: 1;
+     opacity: 0.8;
+ }
+
+ #layer-trees {
+     background-image: url('assets/house/arbusto.svg');
+     background-size: 300px;
+     height: 150px;
+     bottom: 90px;
+     z-index: 2;
+ }
+
+ #layer-ground {
+     height: 100px;
+     background: #8d6e63;
+     border-top: 10px solid #7cb342;
+     width: 100%;
+     bottom: 0;
+     z-index: 5;
+ }
+
+ /* --- PERSONAGEM --- */
+ #runner-container {
+     position: absolute;
+     bottom: 200px;
+     left: 50%;
+     transform: translateX(-50%);
+     z-index: 10;
+ }
+
+ #runner {
+     width: 200px;
+     height: 300px;
+     background-size: contain;
+     background-repeat: no-repeat;
+     background-position: center;
+ }
+
+ .overlay {
+     position: absolute;
+     inset: 0;
+     background: rgba(0, 0, 0, 0.85);
+     z-index: 100;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     color: white;
+     text-align: center;
+ }
+
+
+ #ui-top {
+     position: absolute;
+     top: 15%;
+     width: 100%;
+     display: flex;
+     justify-content: center;
+     z-index: 50;
+ }
+
+ .bar-container {
+     width: 350px;
+     text-align: center;
+     font-weight: bold;
+     color: #2c3e50;
+ }
+
+
+ .bar-bg {
+     width: 100%;
+     height: 20px;
+     background: #eee;
+     border-radius: 10px;
+     border: 2.5px solid #2c3e50;
+     overflow: hidden;
+     margin-top: 5px;
+ }
+
+ #speech-bubble {
+     position: absolute;
+     bottom: 320px;
+     left: 50%;
+     transform: translateX(-50%);
+     background: white;
+     padding: 12px 18px;
+     border-radius: 18px;
+     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+     width: 220px;
+     font-size: 14px;
+     font-weight: bold;
+     color: #333;
+     text-align: center;
+     display: none;
+     z-index: 20;
+ }
+
+ #level-progress {
+     height: 100%;
+     width: 0%;
+     background: #2ecc71;
+ }
+
+ #ui-bottom {
+     position: absolute;
+     bottom: 30px;
+     left: 50%;
+     transform: translateX(-50%);
+     background: rgba(255, 255, 255, 0.95);
+     padding: 15px 30px;
+     border-radius: 25px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 5px;
+     z-index: 50;
+ }
+
+ .rhythm-timer {
+     font-size: 12px;
+     font-weight: bold;
+     color: #e74c3c;
+     margin-bottom: 2px;
+ }
+
+ #stagnation-bar {
+     width: 300px;
+     height: 10px;
+     background: #e74c3c;
+     border-radius: 5px;
+ }
+
+
+ /* ARCADE */
+
+ #gameCanvas {
+     display: block;
+     width: 100%;
+     height: 100%;
+     cursor: crosshair;
+ }
+
+ .screen {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     z-index: 100;
+     text-align: center;
+     width: 80%;
+     display: none;
+     flex-direction: column;
+     align-items: center;
+ }
+
+ h1 {
+     font-size: 48px;
+     margin-bottom: 20px;
+ }
+
+ p {
+     font-size: 14px;
+     margin-bottom: 40px;
+ }
+
+ .btn-start {
+     background: none;
+     border: none;
+     font-family: inherit;
+     font-size: 24px;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     transition: transform 0.2s;
+ }
+
+ .btn-start:hover {
+     transform: scale(1.1);
+ }
+
+ .btn-start .arrow {
+     margin: 0 15px;
+ }
+
+ h1 {
+     font-size: 48px;
+     margin-top: 80px;
+     margin-bottom: 50px;
+ }
+
+ p {
+     font-size: 12px;
+     margin: 0;
+     margin-bottom: 50px;
+ }
+
+ #progress-container-arcade {
+     position: absolute;
+     top: 40px;
+     left: 50%;
+     transform: translateX(-50%);
+     width: 300px;
+     height: 10px;
+     background: rgba(255, 255, 255, 0.1);
+     border: 1px solid white;
+     z-index: 50;
+ }
+
+ #arcade-timer-bar {
+     width: 100%;
+     height: 100%;
+     background: white;
+ }
+
+ .btn-svg {
+     width: 180px;
+     cursor: pointer;
+     transition: 0.2s;
+ }
+
+ /* Prevent stretching of all game icons and assets */
+ .dialogue-img,
+ .btn-svg,
+ .nav-icon,
+ #gameCanvas {
+     object-fit: contain;
+ }
+
+ /* HOUSE */
+
+ #game-top-half {
+     flex: 1;
+     position: relative;
+     background: #a8d8ff;
+     /* Sky color from sheep.html */
+     overflow: hidden;
+     border-bottom: 4px solid #555;
+     display: block;
+ }
+
+ #sleep-scene {
+     flex: 1;
+     width: 100%;
+     background-size: cover;
+     background-position: center;
+     background-repeat: no-repeat;
+     display: flex;
+     justify-content: center;
+     align-items: flex-end;
+     transition: flex 0.5s ease-in-out;
+     background-color: #050b14;
+ }
+
+ #kidImg {
+     max-height: 80%;
+     width: auto;
+     display: block;
+ }
+
+ .sky-animate {
+     animation: dayNightCycle 30s linear forwards;
+ }
+
+ @keyframes dayNightCycle {
+     0% {
+         background: #a8d8ff;
+     }
+
+     25% {
+         background: #4a90e2;
+     }
+
+     50% {
+         background: #050b14;
+     }
+
+     75% {
+         background: #4a90e2;
+     }
+
+     100% {
+         background: #a8d8ff;
+     }
+ }
+
+ .ground-container {
+     position: absolute;
+     bottom: 0;
+     /* Anchors it to the bottom of the TOP half */
+     left: 0;
+     width: 100%;
+     height: 129px;
+     /* Match your intended road height */
+     z-index: 2;
+ }
+
+ .ground {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+ }
+
+ /* The Sheep container (handling the physics position) */
+ #sheep {
+     position: absolute;
+     /* initial start position for the fall animation */
+     left: 20%;
+     width: 140px;
+     height: 90px;
+     z-index: 10;
+     /* Center horizontal transform only if using left: 50% */
+     /* transform: translateX(-50%); */
+ }
+
+ /* The actual image inside the sheep container */
+ #sheep img {
+     display: block;
+     width: 100%;
+     height: 100%;
+     object-fit: contain;
+     /* Ensures the sheep asset isn't stretched */
+ }
+
+ /* The obstacles (Bushes and Flowers) */
+ .obstacle {
+     position: absolute;
+     height: 50px;
+     /* Standardized height for jump logic */
+     z-index: 5;
+     bottom: 80px;
+     /* bottom is set dynamically in JS to match the floor */
+ }
+
+ #progress-container-house {
+     position: absolute;
+     top: 20px;
+     left: 50%;
+     transform: translateX(-50%);
+     width: 250px;
+     height: 20px;
+     background: rgba(0, 0, 0, 0.2);
+     border: 3px solid white;
+     border-radius: 15px;
+     z-index: 20;
+     overflow: hidden;
+ }
+
+ #progress-bar {
+     height: 100%;
+     background: #4CAF50;
+     width: 0%;
+ }

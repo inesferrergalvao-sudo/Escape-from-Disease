@@ -1,0 +1,429 @@
+:root {
+    --red-dark: #7B090B;
+    --red-light: #C50D0D;
+    --panel-bg: #1e1e1e;
+    --white: #f5f5f5;
+    --nav-size: 50px;
+    /* Height and collapsed width */
+    --expanded-width: 150px;
+    --icon-size: 30px;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* page frames: start black (frame1) then transition to red (frame2) */
+body {
+    transition: background-color 10s cubic-bezier(.2, .9, .3, 1)
+}
+
+body.frame1 {
+    background: var(--panel-bg)
+}
+
+body.frame2 {
+    background: var(--white)
+}
+
+.stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    z-index: 1;
+}
+
+/* center logo absolutely so it doesn't shift when controls appear */
+.logo-wrap {
+    opacity: 1;
+    /* Changed from 0 to 1 */
+    transition: opacity .55s ease, transform .55s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    /* Space between logo and play button */
+    transition: transform 0.8s cubic-bezier(.2, .9, .3, 1);
+    z-index: 2;
+}
+
+.full_logo {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    display: block;
+    transform: scale(0.5);
+    opacity: 0;
+    transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.8s ease;
+}
+
+.body-ready .full_logo {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* This is the state the logo moves TO once the script adds .controls-visible to the body */
+.controls-visible .full_logo {
+    opacity: 1;
+    transform: scale(0.8);
+}
+
+/* play link will be positioned by JS relative to the centered logo */
+.play-link {
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    /* Absolute positioning allows it to overlap the stage correctly */
+    left: 50%;
+    /* Move the left edge to the horizontal center */
+    top: 75%;
+    /* Adjust this percentage to place it below the logo */
+
+    /* START STATE: Centered horizontally via -50%, but offset 50px vertically */
+    transform: translateX(-50%) translateY(50px);
+
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+    z-index: 150;
+    cursor: pointer;
+}
+
+.controls-visible .play-link {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+body.frame2 .logo {
+    transform: scale(1)
+}
+
+.play-btn {
+    width: 50%;
+    background: var(--panel-bg);
+    color: var(--white);
+    padding: 20%;
+    font-size: 28px;
+    border-radius: 4px;
+    border: 6px solid rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+    cursor: pointer
+}
+
+/* Play button hover/transition */
+.play-image {
+    transition: transform .32s cubic-bezier(.2, .9, .3, 1), filter .32s, opacity .45s;
+}
+
+.play-link:hover .play-image {
+    opacity: 1;
+    pointer-events: auto;
+    /* FIX: Keep the -50% here so the button stays centered under the mouse */
+    /* Added a slight scale for a better 'hover' feel */
+    transform: scale(1.05); 
+    transition: transform 0.2s ease;
+}
+
+/* controls visible state (fades in after logo finishes scaling) */
+.controls-visible .top-right {
+    opacity: 1;
+    transform: none;
+    transition: opacity .55s ease, transform .55s ease;
+}
+
+.controls-visible .play-link {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* --------------- SETTINGS NAVIGATION --------------- */
+
+.settings-nav {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    height: var(--nav-size);
+    width: var(--nav-size);
+    /* Square when collapsed */
+    background-color: #1a1a1a;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: flex-end;
+    /* Keeps gear on the right */
+    z-index: 100;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: var(--expanded-width);
+    position: absolute;
+    right: 0;
+}
+
+.main-gear-wrapper {
+    width: var(--nav-size);
+    height: var(--nav-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Container for sound/music */
+.utility-icons {
+    display: flex;
+    gap: 20px;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.3s ease;
+    flex-grow: 1;
+    justify-content: flex-end;
+}
+
+/* Hover State */
+.settings-nav:hover {
+    width: var(--expanded-width);
+    background-color: #f0f0f0;
+}
+
+.settings-nav:hover .utility-icons {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Icon Sizing and Swapping */
+.nav-item {
+    position: relative;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    display: block;
+}
+
+.nav-item img {
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.2s;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.icon-hover {
+    opacity: 0;
+}
+
+/* Icon Swap Logic */
+.settings-nav:hover .icon-default {
+    filter: brightness(0);
+    /* Optional: turns white icons black automatically */
+}
+
+.nav-item:hover .icon-hover {
+    opacity: 1;
+}
+
+.nav-item:hover .icon-default {
+    opacity: 0 !important;
+}
+
+/* small settings panel (example modal) */
+
+
+
+/* --------------- INTRO --------------- */
+
+#viewport.hidden {
+    display: none !important;
+}
+
+#viewport {
+    background: var(--panel-bg);
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Scene 1: Black screen narrative */
+#narrative-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 1.5s ease;
+}
+
+#narrative-text {
+    color: white;
+    font-size: 1.8rem;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* --- Smooth Page Transition Overlay --- */
+#fade-overlay {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.8s ease-in-out;
+}
+
+#fade-overlay.fade-out {
+    opacity: 0;
+}
+
+/* --- Fixed: Only Fade In/Out for Characters --- */
+.person-layer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out !important;
+    /* Pure fade */
+}
+
+.person-layer.visible {
+    opacity: 1;
+}
+
+/* --- Fixed: Only Fade In/Out for Messages --- */
+.text-msg {
+    width: 100%;
+    max-width: 270px;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    cursor: pointer;
+}
+
+.text-msg.show {
+    opacity: 1;
+}
+
+.text-msg-hover {
+        width: 100%;
+    max-width: 270px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  #notification-area:hover .text-msg-hover {
+opacity: 1;
+  }
+
+.hidden {
+    display: none !important;
+}
+
+.fade-out {
+    opacity: 0 !important;
+    transition: opacity 0.8s ease-in-out;
+}
+
+/* Notification Styling - Centered over the phone in person.svg */
+#notification-area {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 270px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 50;
+    transition: opacity 0.5s ease;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+/* Final Start Button */
+#comecar-btn {
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+    cursor: pointer;
+    z-index: 60;
+    opacity: 0;
+    display: none;
+    transition: opacity 1s ease;
+    width: 15vw;
+    /* Scales with screen width */
+    min-width: 120px;
+    cursor: pointer;
+}
+
+
+
+/* --- DIALOGUE --- */
+
+#dialogue-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--overlay-shadow);
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    display: flex;
+    justify-content: center;
+}
+
+#dialogue-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.dialogue-wrapper {
+    position: absolute;
+    bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 900px;
+    max-width: 95vw;
+}
+
+.dialogue-img {
+    width: 100%;
+    display: block;
+}
+
+.btn-svg {
+    cursor: pointer;
+    margin-top: -55px;
+    margin-right: 45px;
+    height: 42px;
+    transition: transform 0.2s;
+    z-index: 31;
+}

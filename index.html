@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape from Disease - Menu</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+</head>
+
+<body>
+    <div id="fade-overlay"></div>
+
+    <nav class="settings-nav">
+        <div class="nav-content">
+            <div class="utility-icons">
+                <a href="#" class="nav-item">
+                    <img src="assets/general/sound.svg" class="icon-default">
+                    <img src="assets/general/sound_hover.svg" class="icon-hover">
+                </a>
+                <a href="#" class="nav-item">
+                    <img src="assets/general/music.svg" class="icon-default">
+                    <img src="assets/general/music_hover.svg" class="icon-hover">
+                </a>
+            </div>
+
+            <div class="main-gear-wrapper">
+                <a href="#" class="nav-item">
+                    <img src="assets/general/settings.svg" class="icon-default">
+                    <img src="assets/general/settings_hover.svg" class="icon-hover">
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="stage">
+        <div class="logo-wrap">
+            <img class="full_logo" src="assets/intro/full_logo.svg" alt="Logo">
+        </div>
+        <div class="play-link" id="playBtn">
+            <img class="play-image" src="assets/general/Play.svg" alt="Play">
+        </div>
+    </main>
+
+    <div id="viewport" class="hidden">
+        <div id="narrative-screen">
+            <div id="narrative-text">Uma quente tarde de verão...</div>
+        </div>
+        <img id="person-img" class="person-layer hidden" src="assets/intro/person.svg">
+        <img id="person2-img" class="person-layer hidden" src="assets/intro/person2.svg">
+        <div id="notification-area">
+            <img src="assets/intro/text.svg" class="text-msg" id="msg1">
+            <img src="assets/intro/text.svg" class="text-msg-hover" id="msg1">
+            <img src="assets/intro/text.svg" class="text-msg" id="msg2">
+            <img src="assets/intro/text.svg" class="text-msg-hover" id="msg2">
+        </div>
+        <img id="comecar-btn" src="assets/general/comecar.svg" alt="Começar">
+    </div>
+
+    <script src="scripts/main.js"></script>
+    <script>
+        // When the user returns to the start screen, reset all game progress
+        window.onload = function () {
+            localStorage.removeItem('gameProgress');
+            console.log("Game progress has been reset for a new session.");
+        };
+    </script>
+</body>
+
+</html>

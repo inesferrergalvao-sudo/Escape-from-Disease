@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Challenge - Escape from Disease</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+    <link rel="stylesheet" href="assets/styles/final.css">
+
+</head>
+
+<body id="main-body">
+    <div id="game-viewport">
+        <nav id="navbar">
+            <img src="assets/general/voltar.svg" class="nav-icon" id="backBtn">
+            <img src="assets/levels/logo.svg" style="height:50px;">
+            <img src="assets/general/definicoes.svg" alt="Settings" />
+        </nav>
+        <div class="stage">
+            <div class="building-row">
+                <div class=" b1 w-hospital">
+                    <img src="assets/levels/Hospital.svg" class="building">
+                </div>
+                <div class="b2 w-market">
+                    <img src="assets/levels/Mercado.svg" class="building">
+                </div>
+                <div class="building-wrapper b3 w-park">
+                    <img src="assets/levels/Parque.svg" class="building">
+                </div>
+                <div class="building-wrapper b4 w-arcade">
+                    <img src="assets/levels/Jogos.svg" class="building">
+                </div>
+                <div class="building-wrapper b5 w-house">
+                    <img src="assets/levels/Casa.svg" class="building">
+                </div>
+            </div>
+
+            <div class="ground-container">
+                <img src="assets/levels/Estrada.svg" class="ground" alt="Ground">
+            </div>
+        </div>
+
+        <div id="dialogue-overlay">
+            <div id="container-1" class="dialogue-wrapper">
+                <img src="assets/general/dialogue.svg" class="dialogue-img">
+                <img src="assets/general/continuar.svg" class="btn-svg" onclick="toSecondDialogue()">
+            </div>
+            <div id="container-2" class="dialogue-wrapper hidden">
+                <img src="assets/general/dialogue2.svg" class="dialogue-img">
+                <img src="assets/general/jogar.svg" class="btn-svg" onclick="startGame()">
+            </div>
+        </div>
+
+        <div id="quiz-layer">
+            <div class="progress-container">
+                <div id="timer-bar"></div>
+            </div>
+            <div class="question-text" id="question-display">1. Qual é a maior artéria do corpo humano?</div>
+            <div class="options-list" id="options-list"></div>
+        </div>
+    </div>
+
+    <div id="popup-wrong" class="modal-popup">
+        <h2 style="color:var(--timer-red)">ERRADO!</h2>
+        <button class="choice-btn" onclick="retryGame()">Tentar Novamente</button>
+    </div>
+
+    <div id="final-sequence">
+        <div class="magic-flash" id="magic-flash"></div>
+        <img src="assets/final/25.png" class="final-frame" id="f25">
+        <img src="assets/final/26.png" class="final-frame" id="f26">
+        <img src="assets/final/27.png" class="final-frame" id="f27">
+        <img src="assets/final/28.png" class="final-frame" id="f28">
+        <img src="assets/final/29.png" class="final-frame" id="f29">
+        <img src="assets/final/30.png" class="final-frame" id="f30">
+        <img src="assets/final/31.png" class="final-frame" id="f31">
+        <button id="restart-btn" onclick="location.href='index.html'">RECOMEÇAR</button>
+    </div>
+
+    <script>
+        let currentRound = 0;
+        let timeLeft = 30;
+        let timerInterval = null;
+
+                const quizData = [
+            { q: "Qual é a maior artéria do corpo humano?", a: ["Aorta", "Coronárias", "Ilíaca Externa", "Arteríolas"], c: "Aorta" },
+            { q: "O que caracteriza a aterosclerose?", a: ["Placas de gordura", "Inflamação renal", "Fraqueza óssea", "Pele seca"], c: "Placas de gordura" },
+            { q: "Qual destes é um fator de risco?", a: ["Sedentarismo", "Beber água", "Dormir cedo", "Ler livros"], c: "Sedentarismo" },
+            { q: "Onde se localiza o coração?", a: ["Mediastino (Tórax)", "Abdómen", "Pescoço", "Costas"], c: "Mediastino (Tórax)" },
+            { q: "Que vasos trazem sangue ao coração?", a: ["Veias", "Artérias", "Linfáticos", "Nervos"], c: "Veias" },
+            { q: "Um sintoma de enfarte pode ser:", a: ["Dor no braço esquerdo", "Dor de dentes", "Soluços", "Fadiga nos pés"], c: "Dor no braço esquerdo" },
+            { q: "A pressão arterial é medida em:", a: ["mmHg", "Graus Celsius", "Quilos", "Metros"], c: "mmHg" },
+            { q: "Prevenir doenças exige:", a: ["Dieta equilibrada", "Fumar pouco", "Comer muito sal", "Evitar sol"], c: "Dieta equilibrada" }
+        ];
+
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('dialogue-overlay').classList.add('active');
+                document.getElementById('container-1').classList.remove('hidden');
+            }, 1000);
+        };
+
+        function toSecondDialogue() {
+            document.getElementById('container-1').classList.add('hidden');
+            document.getElementById('container-2').classList.remove('hidden');
+        }
+
+        function startGame() {
+            document.getElementById('dialogue-overlay').classList.remove('active');
+            document.getElementById('main-body').classList.add('active-game');
+            document.getElementById('navbar').classList.add('active');
+            loadQuestion();
+            setTimeout(() => { document.getElementById('quiz-layer').classList.add('active'); loadQuestion(); }, 800);
+
+
+        }
+
+        function loadQuestion() {
+            if (currentRound >= quizData.length) { transitionToFinal(); return; }
+            const data = quizData[currentRound];
+            document.getElementById('question-display').innerText = `${currentRound + 1}. ${data.q}`;
+            const list = document.getElementById('options-list');
+            list.innerHTML = '';
+            [...data.a].sort(() => Math.random() - 0.5).forEach(ans => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerText = ans;
+                btn.onclick = () => checkAnswer(ans, btn);
+                list.appendChild(btn);
+            });
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            const bar = document.getElementById('timer-bar');
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                bar.style.width = (timeLeft / 30 * 100) + '%';
+                if (timeLeft <= 0) showLoss();
+            }, 100);
+        }
+
+        function checkAnswer(selected, element) {
+            clearInterval(timerInterval);
+            if (selected === quizData[currentRound].c) {
+                element.classList.add('correct');
+                setTimeout(() => { currentRound++; loadQuestion(); }, 1000);
+            } else { showLoss(); }
+        }
+
+        // --- Cinematic Logic ---
+        function transitionToFinal() {
+            const viewport = document.getElementById('game-viewport');
+            const seq = document.getElementById('final-sequence');
+            viewport.style.opacity = '0';
+            setTimeout(() => {
+                seq.style.display = 'flex';
+                setTimeout(() => {
+                    seq.style.opacity = '1';
+                    playFinalSequence();
+                }, 100);
+            }, 1500);
+        }
+
+        function playFinalSequence() {
+            const frames = ['f25', 'f26', 'f27', 'f28', 'f29', 'f30', 'f31'];
+            let i = 0;
+
+            const nextFrame = () => {
+                if (i < frames.length) {
+                    const currentImg = document.getElementById(frames[i]);
+
+                    // Transformation logic between 27 and 28
+                    if (frames[i] === 'f27') {
+                        currentImg.classList.add('active');
+                        setTimeout(() => {
+                            currentImg.classList.add('shaking');
+                            setTimeout(() => {
+                                const flash = document.getElementById('magic-flash');
+                                flash.classList.add('burst-active');
+
+                                // Smooth crossfade: 28 starts fading in while 27 is still there
+                                setTimeout(() => {
+                                    document.getElementById('f28').classList.add('active');
+                                    setTimeout(() => {
+                                        currentImg.classList.remove('active', 'shaking');
+                                        i = 3; // Ensure index is set to f28
+                                        setTimeout(nextFrame, 2000);
+                                    }, 400); // 27 disappears after 28 is visible
+                                }, 600);
+                            }, 2500); // Shaking build-up
+                        }, 1000);
+                    }
+                    else {
+                        // Standard frame sequence
+                        if (i > 0) document.getElementById(frames[i - 1]).classList.remove('active');
+                        currentImg.classList.add('active');
+
+                        i++;
+                        if (i < frames.length) {
+                            setTimeout(nextFrame, 2000);
+                        } else {
+                            // End of sequence
+                            setTimeout(() => {
+                                document.getElementById('restart-btn').style.display = 'block';
+                            }, 1000);
+                        }
+                    }
+                }
+            };
+            nextFrame();
+        }
+
+        function showLoss() { clearInterval(timerInterval); document.getElementById('popup-wrong').style.display = 'block'; }
+        function retryGame() { document.getElementById('popup-wrong').style.display = 'none'; currentRound = 0; loadQuestion(); }
+
+    </script>
+</body>
+
+</html>

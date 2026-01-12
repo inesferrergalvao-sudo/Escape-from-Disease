@@ -1,0 +1,253 @@
+ :root {
+     --red-dark: #7B090B;
+     --red-light: #C50D0D;
+     --panel-bg: #1e1e1e;
+     --white: #f5f5f5;
+ }
+
+ body,
+ html {
+     margin: 0;
+     padding: 0;
+     width: 100%;
+     height: 100%;
+     overflow: hidden;
+ }
+
+ body.game-theme {
+     background-color: #99ccff !important;
+     transition: background-color 1s ease-in-out;
+ }
+
+ .hidden {
+     display: none !important;
+ }
+
+ .stage {
+     position: relative;
+     width: 100vw;
+     height: 100vh;
+     display: flex;
+     /* Changed from grid to flex for better vertical control */
+     flex-direction: column;
+     align-items: center;
+     justify-content: flex-end;
+     /* Keeps buildings sitting on the ground */
+     overflow: hidden;
+ }
+
+ /* 1. LOGO */
+ .logo {
+     position: absolute;
+     top: 20px;
+     transform: scale(0);
+     width: 140px;
+     z-index: 10;
+     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.8s;
+ }
+
+ .active .logo {
+     transform: scale(1);
+ }
+
+ /* 2. BUILDINGS */
+ .building-row {
+     display: flex;
+     align-items: flex-end;
+     justify-content: center;
+     width: 90%;
+     max-width: 1500px;
+     z-index: 5;
+     /* This ensures buildings stay attached to the top of the ground */
+     margin-bottom: -3px;
+ }
+
+ .building-wrapper {
+     transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+     transform: translateY(100vh);
+     /* Start off-screen for waterfall */
+ }
+
+ .building {
+     width: 100%;
+     height: auto;
+     display: block;
+ }
+
+ /* 3. "GO" BUTTON OVERLAP (SOBREPOSIÇÃO) */
+ .level-btn {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%) scale(0.9);
+     cursor: pointer;
+     opacity: 0;
+     transition: all 0.3s ease;
+     z-index: 15;
+     pointer-events: none;
+
+     background: none;
+     border: none;
+     padding: 0;
+     outline: none;
+     box-shadow: none;
+ }
+
+ .level-btn .img-hover {
+     display: none;
+ }
+
+ /* When hovering the button: hide default, show hover */
+ .level-btn:hover .img-default {
+     display: none;
+ }
+
+ .level-btn:hover .img-hover {
+     display: block;
+ }
+
+ /* Optional: Ensure images don't break the button centering */
+ .level-btn img {
+     display: block;
+     width: 150px;
+     /* Or your specific width */
+     height: auto;
+ }
+
+ .active .building-wrapper {
+     transform: translateY(0);
+ }
+
+ /* Waterfall Delays */
+ .active .b1 {
+     transition-delay: 0.0s;
+ }
+
+ .active .b2 {
+     transition-delay: 0.08s;
+ }
+
+ .active .b3 {
+     transition-delay: 0.16s;
+ }
+
+ .active .b4 {
+     transition-delay: 0.24s;
+ }
+
+ .active .b5 {
+     transition-delay: 0.32s;
+ }
+
+ /* 4. HOVER INTERACTION */
+ .hover-ready .building-wrapper {
+     pointer-events: auto;
+ }
+
+ .hover-ready .building-wrapper:hover {
+     transform: translateY(-15px) scale(1);
+     z-index: 10;
+ }
+
+ .hover-ready .building-wrapper:hover .level-btn {
+     opacity: 1;
+     transform: translate(-50%, -50%) scale(1);
+     pointer-events: auto;
+ }
+
+
+ /* Proportions */
+ .w-hospital {
+     width: 25vw;
+     max-width: 400px;
+ }
+
+ .w-market {
+     width: 20vw;
+     max-width: 280px;
+ }
+
+ .w-park {
+     width: 15vw;
+     max-width: 280px;
+ }
+
+ .w-arcade {
+     width: 20vw;
+     max-width: 280px;
+ }
+
+ .w-house {
+     width: 20vw;
+     max-width: 315px;
+ }
+
+ .w-final {
+     width: 22vw;
+     max-width: 350px;
+ }
+
+
+ /* 5. THE GROUND */
+ .ground-container {
+     width: 100%;
+     flex-grow: 1;
+     /* This makes the ground fill all remaining space to the bottom */
+     max-height: 10vh;
+     /* Ensures it never disappears on short screens */
+     position: relative;
+     z-index: 2;
+     display: flex;
+     justify-content: center;
+ }
+
+ .ground {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     /* Ensures the ground texture stretches/fills without distortion */
+     object-position: top;
+ }
+
+ .active .ground-container {
+     transform: translateY(0);
+ }
+
+ .building-wrapper.completed {
+     filter: grayscale(100%) !important;
+     opacity: 0.6 !important;
+     pointer-events: none !important;
+     cursor: default;
+ }
+
+ /* Hide the "Visitar" button for completed buildings */
+ .building-wrapper.completed .level-btn {
+     display: none !important;
+ }
+
+ .final-btn {
+     position: fixed;
+     bottom: 30px;
+     right: 30px;
+     padding: 15px 30px;
+     background-color: #facc15;
+     /* Gold/Yellow color */
+     color: #7b090b;
+     border: 4px solid #7b090b;
+     border-radius: 50px;
+     font-size: 20px;
+     font-weight: bold;
+     cursor: pointer;
+     z-index: 100;
+     box-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+     transition: transform 0.3s, background-color 0.3s;
+ }
+
+ .final-btn:hover {
+     transform: scale(1.1);
+     background-color: #fef08a;
+ }
+
+ .final-btn.hidden {
+     display: none !important;
+ }

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital - Escape from Disease</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+    <link rel="stylesheet" href="assets/styles/mini_games.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+                url('assets/market/market.png');
+            background-repeat: no-repeat;
+
+            /* FIX: Make it cover the whole screen */
+            background-size: cover;
+
+            /* FIX: Center the image so it scales nicely on different screens */
+            background-position: center;
+
+        }
+
+        /* Essential for general.js and the split-screen look */
+        #game-container {
+            display: none;
+            /* Hidden until general.js calls startGame */
+            flex-direction: column;
+            width: 100vw;
+            height: calc(100vh - 70px);
+            margin-top: 70px;
+            overflow: hidden;
+            background-color: black;
+        }
+
+        #game-container.visible {
+            display: flex;
+        }
+
+        /* Overlay for Game Over on top of full screen image */
+        #game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            /* Dim the Energy/Tired image slightly */
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar">
+        <img src="assets/general/voltar.svg" class="nav-icon" id="backBtn">
+        <nav class="settings-nav">
+            <div class="nav-content">
+                <div class="utility-icons">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/sound.svg" class="icon-default">
+                        <img src="assets/general/sound_hover.svg" class="icon-hover">
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/music.svg" class="icon-default">
+                        <img src="assets/general/music_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+
+                <div class="main-gear-wrapper">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/settings.svg" class="icon-default">
+                        <img src="assets/general/settings_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div id="dialogue-overlay">
+        <div id="container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toSecondDialogue()">
+        </div>
+        <div id="container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="startGame()">
+        </div>
+    </div>
+
+    <div id="game-container" style="background-image: none;">
+        <div id="game-top-half">
+
+            <div id="progress-container-house">
+                <div id="progress-bar"></div>
+            </div>
+
+            <div id="sheep">
+                <img id="sheepImg" src="assets/house/sheep1.svg" alt="sheep">
+            </div>
+            <div class="ground-container">
+                <img src="assets/house/floor.svg" class="ground" alt="Ground">
+            </div>
+        </div>
+
+        <div id="sleep-scene">
+            <img id="kidImg" src="assets/house/dormir.svg" alt="sleeping kid">
+        </div>
+
+        <div id="game-over-screen">
+            <h1 style="color:white; font-family:'Arial Black'; font-size: 3rem;">GAME OVER</h1>
+            <p style="color:white; font-size: 1.2rem;">A ovelha tropeçou!</p>
+            <button onclick="resetGame()" style="background:none; border:none; cursor:pointer; margin-top:20px;">
+                <img src="assets/general/jogar.svg" style="width:180px;">
+            </button>
+        </div>
+    </div>
+
+    <div id="end-dialogue-overlay" class="dialogue-overlay hidden">
+        <div id="end-container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toNextEndStep(1, 2)">
+        </div>
+        <div id="end-container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="concludeGame()">
+        </div>
+    </div>
+
+        <div id="popup-quit" class="overlay-screen" style="display:none;">
+        <div class="popup-content">
+            <h3>Sair do nível?</h3>
+            <button onclick="confirmQuit()">SIM</button>
+            <button onclick="closeQuitPopup()">NÃO</button>
+        </div>
+    </div>
+
+    <script src="scripts/general.js"></script>
+    <script>
+        const gameContainer = document.getElementById("game-container");
+        const gameTopHalf = document.getElementById("game-top-half");
+        const sleepScene = document.getElementById("sleep-scene");
+        const sheep = document.getElementById("sheep");
+        const progressBar = document.getElementById("progress-bar");
+        const gameOverScreen = document.getElementById("game-over-screen");
+
+        const TOTAL_TIME = 30000;
+        const GROUND_HEIGHT = 128;
+        const LANDING_Y = GROUND_HEIGHT - 5;
+
+
+
+        let gravity = 0.6;
+        let velocity = 0;
+        let isJumping = false;
+        let landingComplete = false;
+        let bushes = [];
+        let gameRunning = false;
+        let startTime;
+        let obstacleTimeout;
+        let loopId;
+
+        function jump() {
+            if (!isJumping && gameRunning && landingComplete) {
+                velocity = -12;
+                isJumping = true;
+                document.getElementById('sheepImg').src = 'assets/house/sheep2.svg';
+            }
+        }
+
+        // Space and Click to jump
+        document.addEventListener("keydown", e => { if (e.code === "Space") jump(); });
+
+        function createObstacle() {
+            if (!gameRunning) return;
+            const obstacle = document.createElement('img');
+            obstacle.className = 'obstacle';
+            obstacle.src = Math.random() > 0.5 ? 'assets/house/flor.svg' : 'assets/house/arbusto.svg';
+            obstacle.style.left = window.innerWidth + 'px';
+            obstacle.style.bottom = GROUND_HEIGHT + 'px';
+            obstacle.style.height = '40px';
+            gameTopHalf.appendChild(obstacle);
+            bushes.push(obstacle);
+        }
+
+        function spawnObstacleLoop() {
+            if (!gameRunning) return;
+
+            createObstacle();
+
+            // Calculate a random delay between 1.2 and 2.5 seconds
+            // You can adjust these numbers to make the game harder or easier
+            const minDelay = 1000;
+            const maxDelay = 2500;
+            const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
+            // Schedule the next obstacle
+            obstacleTimeout = setTimeout(spawnObstacleLoop, randomDelay);
+        }
+
+        // Triggered by general.js "Jogar" button
+        function initMiniGame() {
+            gameRunning = true;
+            landingComplete = false;
+
+            // Layout Reset
+            // bushes.forEach(b => b.remove());
+            //bushes = [];
+
+            velocity = 0;
+            gameTopHalf.style.display = "block";
+            sleepScene.style.display = "flex";
+
+            //gameOverScreen.style.display = "none";
+            document.getElementById("kidImg").style.display = "block";
+            gameContainer.style.backgroundImage = "none";
+            gameContainer.style.backgroundColor = "black";
+
+            // sleepScene.style.backgroundImage = "url('assets/house/dormir.svg')";
+            gameTopHalf.classList.remove('sky-animate');
+
+            // Fall animation from top
+            sheep.style.bottom = "600px";
+            update();
+        }
+
+        function update() {
+            if (!gameRunning) return;
+
+            velocity += gravity;
+            let currentBottom = parseFloat(sheep.style.bottom) || 600;
+            currentBottom -= velocity;
+
+            if (currentBottom <= LANDING_Y) {
+                currentBottom = LANDING_Y;
+                velocity = 0;
+                if (isJumping) {
+                    isJumping = false;
+                    document.getElementById('sheepImg').src = 'assets/house/sheep1.svg';
+                }
+                if (!landingComplete) {
+                    landingComplete = true;
+                    startTime = Date.now();
+                    spawnObstacleLoop();
+                    gameTopHalf.classList.add('sky-animate');
+                }
+            }
+            sheep.style.bottom = currentBottom + "px";
+
+            if (landingComplete) {
+                bushes.forEach((obstacle, i) => {
+                    let left = parseFloat(obstacle.style.left);
+                    left -= 7;
+                    obstacle.style.left = left + "px";
+
+                    const s = sheep.getBoundingClientRect();
+                    const b = obstacle.getBoundingClientRect();
+
+                    if (s.right > b.left + 25 && s.left < b.right - 25 && s.bottom > b.top + 15) {
+                        endGame(false);
+                    }
+                    if (left < -100) { obstacle.remove(); bushes.splice(i, 1); }
+                });
+
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / TOTAL_TIME, 1);
+                progressBar.style.width = (progress * 100) + "%";
+                if (progress >= 1) endGame(true);
+            }
+            loopId = requestAnimationFrame(update);
+        }
+
+
+
+        function endGame(won) {
+            gameRunning = false;
+            clearTimeout(obstacleTimeout); // Use clearTimeout here
+            cancelAnimationFrame(loopId);
+
+            gameTopHalf.style.display = "none";
+            document.getElementById("kidImg").style.display = "none";
+            sleepScene.style.display = "none";
+            sleepScene.style.flex = "1";
+
+            if (won) {
+                gameContainer.style.backgroundImage = "url('assets/house/Energy.svg')";
+                gameContainer.style.backgroundSize = "cover";
+                openEndDialogue();
+            } else {
+                gameContainer.style.backgroundImage = "url('assets/house/Tired.svg')";
+                gameContainer.style.backgroundSize = "cover";
+                gameContainer.style.backgroundPosition = "center";
+                gameOverScreen.style.display = "flex";
+            }
+        }
+
+        function resetGame() {
+            gameOverScreen.style.display = "none";
+            bushes.forEach(b => b.remove());
+            bushes = [];
+            progressBar.style.width = "0%";
+
+            gameTopHalf.classList.remove('sky-animate');
+
+            initMiniGame();
+        }
+
+        function concludeGame() {
+            let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
+            progress.house = true;
+            localStorage.setItem('gameProgress', JSON.stringify(progress));
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+
+</html>

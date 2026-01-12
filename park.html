@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital - Escape from Disease</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+    <link rel="stylesheet" href="assets/styles/mini_games.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/market/market.png');
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(#87CEEB, #E0F6FF);
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #game-container.visible {
+            opacity: 1;
+        }
+
+        /*
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }*/
+    </style>
+</head>
+
+<body>
+    <div id="navbar">
+        <img src="assets/general/voltar.svg" class="nav-icon" id="backBtn">
+        <nav class="settings-nav">
+            <div class="nav-content">
+                <div class="utility-icons">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/sound.svg" class="icon-default">
+                        <img src="assets/general/sound_hover.svg" class="icon-hover">
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/music.svg" class="icon-default">
+                        <img src="assets/general/music_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+
+                <div class="main-gear-wrapper">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/settings.svg" class="icon-default">
+                        <img src="assets/general/settings_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div id="dialogue-overlay">
+        <div id="container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toSecondDialogue()">
+        </div>
+        <div id="container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="startGame()">
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="game-over-screen" class="overlay hidden">
+            <h1 id="over-title">GAME OVER</h1>
+            <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer;">REPETIR</button>
+        </div>
+
+        <div id="layer-city" class="layer"></div>
+        <div id="layer-trees" class="layer"></div>
+        <div id="layer-ground"></div>
+
+        <div id="runner-container">
+            <div id="runner"></div>
+        </div>
+
+        <div id="ui-top">
+            <div class="bar-container">
+                PROGRESSO DA PROVA
+                <div class="bar-bg">
+                    <div id="level-progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ui-bottom">
+            <div class="rhythm-timer">ALTERA O RITMO EM: <span id="timer-text">5.0</span>s</div>
+            <input type="range" id="speed-slider" min="7" max="64" value="30">
+            <div class="bar-bg" style="width:300px; height:10px; border:none; background:#ddd; margin-top:5px;">
+                <div id="stagnation-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="end-dialogue-overlay" class="dialogue-overlay hidden">
+        <div id="end-container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toNextEndStep(1, 2)">
+        </div>
+        <div id="end-container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="concludeGame()">
+        </div>
+    </div>
+
+    <div id="popup-quit" class="overlay-screen" style="display:none;">
+        <div class="popup-content">
+            <h3>Sair do nível?</h3>
+            <button onclick="confirmQuit()">SIM</button>
+            <button onclick="closeQuitPopup()">NÃO</button>
+        </div>
+    </div>
+
+    <script src="scripts/general.js"></script>
+    <script>
+        let gameActive = false;
+        let distance = 0;
+        const goal = 5000;
+        let timerToChange = 5.0;
+        let lastSliderVal = 30;
+
+        let currentSmoothSpeed = 30;
+        let targetSpeed = 30;
+        let bgOffsetCity = 0;
+        let bgOffsetTrees = 0;
+
+        // Frames e Pre-loading
+        const framePaths = [
+            'assets/park/Runner1.png', 'assets/park/Runner2.png', 'assets/park/Runner3.png', 'assets/park/Runner4.png',
+            'assets/park/Runner5.png', 'assets/park/Runner6.png', 'assets/park/Runner7.png', 'assets/park/Runner8.png'
+        ];
+        const frameImages = [];
+        framePaths.forEach(path => {
+            const img = new Image();
+            img.src = path;
+            frameImages.push(img);
+        });
+
+        let currentFrame = 0;
+        let lastFrameTime = 0;
+
+        const runnerEl = document.getElementById('runner');
+        const slider = document.getElementById('speed-slider');
+        const levelBar = document.getElementById('level-progress');
+        const stagBar = document.getElementById('stagnation-bar');
+        const timerText = document.getElementById('timer-text');
+        const overScreen = document.getElementById('game-over-screen');
+
+        function initMiniGame() {
+            gameActive = true;
+            requestAnimationFrame(update);
+        }
+
+        function update(timestamp) {
+            if (!gameActive) return;
+
+            targetSpeed = parseInt(slider.value);
+            currentSmoothSpeed += (targetSpeed - currentSmoothSpeed) * 0.1;
+
+            bgOffsetCity -= currentSmoothSpeed * 0.05;
+            bgOffsetTrees -= currentSmoothSpeed * 0.15;
+            document.getElementById('layer-city').style.transform = `translateX(${bgOffsetCity % window.innerWidth}px)`;
+            document.getElementById('layer-trees').style.transform = `translateX(${bgOffsetTrees % window.innerWidth}px)`;
+
+            let frameInterval = 200 - (currentSmoothSpeed * 2.2);
+            if (timestamp - lastFrameTime > frameInterval) {
+                runnerEl.style.backgroundImage = `url(${framePaths[currentFrame]})`;
+                currentFrame = (currentFrame + 1) % framePaths.length;
+                lastFrameTime = timestamp;
+            }
+
+            distance += currentSmoothSpeed * 0.1;
+            levelBar.style.width = Math.min((distance / goal) * 100, 100) + '%';
+
+            if (Math.abs(targetSpeed - lastSliderVal) > 4) {
+                timerToChange = 5.0;
+                lastSliderVal = targetSpeed;
+            } else {
+                timerToChange = Math.max(0, timerToChange - 0.016);
+            }
+
+            timerText.innerText = timerToChange.toFixed(1);
+            stagBar.style.width = (timerToChange / 5 * 100) + '%';
+
+            // --- LÓGICA DE FIM DE JOGO CORRIGIDA ---
+            if (timerToChange <= 0) {
+                // PERDEU: Mostra a tela de Game Over
+                endGame(overScreen);
+            } else if (distance >= goal) {
+                // GANHOU: Chama a função de diálogo final do general.js
+                endGame(openEndDialogue);
+            } else {
+                requestAnimationFrame(update);
+            }
+        }
+
+        function resetGame() {
+            // Esconde a tela de game over
+            overScreen.classList.add('hidden');
+            overScreen.style.display = 'none';
+
+            // Reinicia variáveis
+            distance = 0;
+            timerToChange = 5.0;
+            lastSliderVal = 30;
+            currentSmoothSpeed = 30;
+            targetSpeed = 30;
+
+            // Reinicia UI
+            levelBar.style.width = '0%';
+            stagBar.style.width = '100%';
+            timerText.innerText = '5.0';
+            slider.value = 30;
+
+            // Recomeça o jogo
+            initMiniGame();
+        }
+
+        function endGame(screenToShow) {
+            gameActive = false;
+
+            if (typeof screenToShow === "function") {
+                screenToShow(); // Chama openEndDialogue
+            } else {
+                screenToShow.classList.remove('hidden');
+                screenToShow.style.display = 'flex'; // Garante visibilidade
+            }
+        }
+
+        function concludeGame() {
+            let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
+            const pageName = window.location.pathname.split("/").pop().split(".")[0];
+            progress[pageName] = true;
+            localStorage.setItem('gameProgress', JSON.stringify(progress));
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidade - Escape from Disease</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+    <link rel="stylesheet" href="assets/styles/home.css">
+</head>
+
+<body class="game-theme">
+    <div id="fade-overlay"></div>
+    <nav class="settings-nav">
+        <div class="nav-content">
+            <div class="utility-icons">
+                <a href="#" class="nav-item">
+                    <img src="assets/general/sound.svg" class="icon-default">
+                    <img src="assets/general/sound_hover.svg" class="icon-hover">
+                </a>
+                <a href="#" class="nav-item">
+                    <img src="assets/general/music.svg" class="icon-default">
+                    <img src="assets/general/music_hover.svg" class="icon-hover">
+                </a>
+            </div>
+
+            <div class="main-gear-wrapper">
+                <a href="#" class="nav-item">
+                    <img src="assets/general/settings.svg" class="icon-default">
+                    <img src="assets/general/settings_hover.svg" class="icon-hover">
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="stage" id="main-scene">
+        <img src="assets/levels/Logo.svg" style="height:50px;" class="logo" alt="Logo">
+        <div class="building-row">
+            <div class="building-wrapper b1 w-hospital">
+                <button class="level-btn" data-target="hospital.html">
+                    <img src="assets/levels/btn-hospital.svg" class="img-default">
+                    <img src="assets/levels/btn-hospital-hover.svg" class="img-hover">
+                </button>
+                <img src="assets/levels/Hospital.svg" class="building">
+            </div>
+            <div class="building-wrapper b2 w-market">
+                <button class="level-btn" data-target="market.html">
+                    <img src="assets/levels/btn-mercado.svg" class="img-default">
+                    <img src="assets/levels/btn-mercado-hover.svg" class="img-hover">
+                </button>
+                <img src="assets/levels/Mercado.svg" class="building">
+            </div>
+            <div class="building-wrapper b3 w-park">
+                <button class="level-btn" data-target="park.html">
+                    <img src="assets/levels/btn-parque.svg" class="img-default">
+                    <img src="assets/levels/btn-parque-hover.svg" class="img-hover">
+                </button>
+                <img src="assets/levels/Parque.svg" class="building">
+            </div>
+            <div class="building-wrapper b4 w-arcade">
+                <button class="level-btn" data-target="arcade.html">
+                    <img src="assets/levels/btn-arcade.svg" class="img-default">
+                    <img src="assets/levels/btn-arcade-hover.svg" class="img-hover">
+                </button>
+                <img src="assets/levels/Jogos.svg" class="building">
+            </div>
+            <div class="building-wrapper b5 w-house">
+                <button class="level-btn" data-target="house.html">
+                    <img src="assets/levels/btn-casa.svg" class="img-default">
+                    <img src="assets/levels/btn-casa-hover.svg" class="img-hover">
+                </button>
+                <img src="assets/levels/Casa.svg" class="building">
+            </div>
+        </div>
+
+        <div class="ground-container">
+            <img src="assets/levels/Estrada.svg" class="ground" alt="Ground">
+        </div>
+        <button id="final-challenge-btn" class="final-btn hidden" data-target="final_challenge.html">
+            DESAFIO FINAL
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scene = document.getElementById('main-scene');
+            const overlay = document.getElementById('fade-overlay');
+            const levelBtns = document.querySelectorAll('.level-btn');
+
+            // --- 1. DATA & PROGRESS (Keep this) ---
+            const progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
+            const requiredGames = ['hospital', 'market', 'park', 'arcade', 'house'];
+            let completedCount = 0;
+
+            // --- 2. GRAY OUT BUILDINGS (Keep this) ---
+            requiredGames.forEach(game => {
+                if (progress[game]) {
+                    completedCount++;
+                    const wrapper = document.querySelector(`.w-${game}`);
+                    if (wrapper) {
+                        wrapper.classList.add('completed');
+                        wrapper.style.opacity = "0.5";
+                        wrapper.style.filter = "grayscale(100%)";
+                        wrapper.style.pointerEvents = "none";
+                    }
+                }
+            });
+
+            // --- 3. NEW: SHOW FINAL BUTTON (Add this here) ---
+            const finalBtn = document.getElementById('final-challenge-btn');
+            if (completedCount === requiredGames.length) {
+                if (finalBtn) {
+                    finalBtn.classList.remove('hidden');
+                }
+            }
+
+            // --- 4. ANIMATIONS & FADES (Keep all of this!) ---
+            // This is what handles your "fade from black"
+            setTimeout(() => {
+                if (overlay) overlay.classList.add('fade-out');
+            }, 100);
+
+            // This is what makes the buildings drop (Waterfall)
+            setTimeout(() => {
+                scene.classList.add('active');
+                setTimeout(() => {
+                    scene.classList.add('hover-ready');
+                }, 1200);
+            }, 500);
+
+            // --- 5. NAVIGATION LOGIC (Update to include the new button) ---
+            // Combine all clickable buttons (Building buttons + Final button)
+            const allButtons = [...levelBtns];
+            if (finalBtn) allButtons.push(finalBtn);
+
+            allButtons.forEach(btn => {
+                btn.onclick = () => {
+                    const targetPage = btn.getAttribute('data-target');
+                    if (!targetPage) return;
+
+                    // Trigger your existing fade to black
+                    if (overlay) overlay.classList.remove('fade-out');
+
+                    setTimeout(() => {
+                        window.location.href = targetPage;
+                    }, 800);
+                };
+            });
+        });
+    </script>
+</body>
+
+</html>

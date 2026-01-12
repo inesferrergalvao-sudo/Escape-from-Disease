@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital - Escape from Disease</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+    <link rel="stylesheet" href="assets/styles/mini_games.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --retro-font: 'Press Start 2P', cursive;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: var(--retro-font);
+            background-color: black;
+            /* Initial background with image */
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/arcade/arcade_background.png');
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            background-size: 100% auto;
+            transition: background 0.5s ease;
+            /* Smooth transition when background changes */
+        }
+
+        /* Class to remove background image when game starts */
+        body.game-running {
+            background: #1a1a1a;
+            /* Solid dark grey/black for better focus on gameplay */
+        }
+
+        #game-container {
+            width: 100vw;
+            height: calc(100vh - 80px);
+            position: relative;
+            margin-top: 80px;
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            color: white;
+        }
+
+        #game-container.visible {
+            display: flex !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar">
+        <img src="assets/general/voltar.svg" class="nav-icon" id="backBtn">
+        <nav class="settings-nav">
+            <div class="nav-content">
+                <div class="utility-icons">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/sound.svg" class="icon-default">
+                        <img src="assets/general/sound_hover.svg" class="icon-hover">
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/music.svg" class="icon-default">
+                        <img src="assets/general/music_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+
+                <div class="main-gear-wrapper">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/settings.svg" class="icon-default">
+                        <img src="assets/general/settings_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div id="dialogue-overlay">
+        <div id="container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toSecondDialogue()">
+        </div>
+        <div id="container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="startGame()">
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="progress-container-arcade">
+            <div id="arcade-timer-bar"></div>
+        </div>
+
+        <div id="lvl1-intro" class="screen">
+            <h1>HEART ATTACK</h1>
+            <p>LIMPA A GORDURA À VOLTA DO CORAÇÃO!</p>
+            <button class="btn-start" onclick="startLevel('heart')">
+                <span class="arrow">▶</span> START <span class="arrow">◀</span>
+            </button>
+        </div>
+
+        <div id="lvl2-intro" class="screen">
+            <h1>BRAIN FOG</h1>
+            <p>BOM TRABALHO! AGORA LIMPA O CÉREBRO.</p>
+            <button class="btn-start" onclick="startLevel('brain')">
+                <span class="arrow">▶</span> START <span class="arrow">◀</span>
+            </button>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="game-over-screen" class="screen">
+            <h1>FIM DE JOGO</h1>
+            <button class="btn-start" onclick="resetGame()">
+                <span class="arrow">▶</span> TENTAR DE NOVO <span class="arrow">◀</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="end-dialogue-overlay" class="hidden">
+        <div id="end-container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toNextEndStep(1, 2)">
+        </div>
+        <div id="end-container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="concludeGame()">
+        </div>
+    </div>
+
+        <div id="popup-quit" class="overlay-screen" style="display:none;">
+        <div class="popup-content">
+            <h3>Sair do nível?</h3>
+            <button onclick="confirmQuit()">SIM</button>
+            <button onclick="closeQuitPopup()">NÃO</button>
+        </div>
+    </div>
+
+    <script src="scripts/general.js"></script>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let FAT_SIZE = 200;
+        let ORGAN_SIZE = 220;
+        let LAUNCHER_X, LAUNCHER_Y;
+        let gameActive = false;
+        let currentLevel = 'heart';
+        let fats = [], statins = [], mousePos = { x: 0, y: 0 };
+        let timeRemaining = 60000, timerInterval;
+
+        const assets = {
+            fat: new Image(),
+            statin: new Image(),
+            bgHeart: new Image(),
+            bgBrain: new Image()
+        };
+
+
+        assets.fat.src = 'assets/arcade/fat.svg';
+        assets.statin.src = 'assets/arcade/statin.svg';
+        assets.bgHeart.src = 'assets/arcade/heart.svg';
+        assets.bgBrain.src = 'assets/arcade/brain.svg';
+
+        function startGame() {
+            const overlay = document.getElementById('dialogue-overlay');
+            const navbar = document.getElementById('navbar');
+            const gameContainer = document.getElementById('game-container');
+
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }
+            if (navbar) navbar.classList.add('active');
+            if (gameContainer) {
+                gameContainer.classList.add('visible');
+                requestAnimationFrame(() => {
+                    resize();
+                    initMiniGame();
+                });
+            }
+        }
+
+        function initMiniGame() {
+            document.getElementById('lvl1-intro').style.display = 'flex';
+        }
+
+        function startLevel(level) {
+            currentLevel = level;
+            gameActive = true;
+            timeRemaining = 60000;
+            statins = [];
+            fats = [];
+
+            // REMOVE BODY BACKGROUND IMAGE
+            document.body.classList.add('game-running');
+
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+
+            const colSpacing = 200;
+            const rowSpacing = 200;
+            const cols = Math.floor((canvas.width - 40) / colSpacing);
+            const rows = 2;
+            const startX = (canvas.width - (cols * colSpacing)) / 2 + (colSpacing / 2);
+
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    let x = startX + (col * colSpacing);
+                    let y = 120 + (row * rowSpacing);
+
+                    const distToCenter = Math.hypot(x - (canvas.width / 2), y - 140);
+                    if (distToCenter > 130) {
+                        fats.push({ x: x, y: y, active: true });
+                    }
+                }
+            }
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!gameActive) return;
+                timeRemaining -= 100;
+                const bar = document.getElementById('arcade-timer-bar');
+                if (bar) bar.style.width = (timeRemaining / 60000 * 100) + "%";
+                if (timeRemaining <= 0) endGame(false);
+            }, 100);
+        }
+
+        function endGame(won) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            if (won) {
+                if (currentLevel === 'heart') {
+                    document.body.classList.remove('game-running');
+                    document.getElementById('lvl2-intro').style.display = 'flex';
+                } else {
+                    openEndDialogue();
+                }
+            } else {
+                document.body.classList.remove('game-running');
+                document.getElementById('game-over-screen').style.display = 'flex';
+            }
+        }
+
+        function resetGame() {
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            startLevel('heart');
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mousedown', () => {
+            if (!gameActive) return;
+            const dx = mousePos.x - LAUNCHER_X, dy = mousePos.y - LAUNCHER_Y;
+            const angle = Math.atan2(dy, dx);
+            statins.push({
+                x: LAUNCHER_X,
+                y: LAUNCHER_Y,
+                vx: Math.cos(angle) * 12,
+                vy: Math.sin(angle) * 12
+            });
+        });
+
+        function update() {
+            if (!gameActive) return;
+            for (let i = statins.length - 1; i >= 0; i--) {
+                let s = statins[i];
+                s.x += s.vx; s.y += s.vy;
+
+                for (let f of fats) {
+                    if (f.active && Math.hypot(s.x - f.x, s.y - f.y) < FAT_SIZE / 2) {
+                        f.active = false;
+                        statins.splice(i, 1);
+                        if (!fats.some(f => f.active)) endGame(true);
+                        break;
+                    }
+                }
+                if (s && (s.y < 0 || s.x < 0 || s.x > canvas.width || s.y > canvas.height)) {
+                    statins.splice(i, 1);
+                }
+            }
+        }
+
+        function drawImageProportional(img, x, y, maxWidth, maxHeight) {
+            if (!img.complete || img.naturalWidth === 0) return;
+            const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+            const nw = img.width * ratio;
+            const nh = img.height * ratio;
+            ctx.drawImage(img, x - nw / 2, y - nh / 2, nw, nh);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // ONLY DRAW GAME ELEMENTS IF GAME IS ACTIVE
+            // This hides the launcher/organ during the start screen
+            if (gameActive) {
+                const organ = currentLevel === 'heart' ? assets.bgHeart : assets.bgBrain;
+                drawImageProportional(organ, canvas.width / 2, 140, ORGAN_SIZE, ORGAN_SIZE);
+
+                ctx.beginPath(); ctx.setLineDash([5, 5]);
+                ctx.moveTo(LAUNCHER_X, LAUNCHER_Y); ctx.lineTo(mousePos.x, mousePos.y);
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.2)"; ctx.stroke(); ctx.setLineDash([]);
+
+                fats.forEach(f => {
+                    if (f.active) drawImageProportional(assets.fat, f.x, f.y, FAT_SIZE, FAT_SIZE);
+                });
+                statins.forEach(s => drawImageProportional(assets.statin, s.x, s.y, 35, 35));
+
+                // Launcher is now only drawn here (inside if gameActive)
+                drawImageProportional(assets.statin, LAUNCHER_X, LAUNCHER_Y, 70, 70);
+            }
+        }
+
+        function resize() {
+            const container = document.getElementById('game-container');
+            if (container.clientWidth > 0) {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                LAUNCHER_X = canvas.width / 2;
+                LAUNCHER_Y = canvas.height - 60;
+            }
+        }
+
+        window.addEventListener('resize', resize);
+        function loop() { update(); draw(); requestAnimationFrame(loop); }
+        loop();
+
+        function concludeGame() {
+            let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
+            const pageName = window.location.pathname.split("/").pop().split(".")[0];
+            progress[pageName] = true;
+            localStorage.setItem('gameProgress', JSON.stringify(progress));
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+
+</html>

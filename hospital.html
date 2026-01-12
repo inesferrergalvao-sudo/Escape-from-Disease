@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital - Escape from Disease</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+    <link rel="stylesheet" href="assets/styles/fonts.css">
+    <link rel="stylesheet" href="assets/styles/mini_games.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/hospital/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #game-container {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            margin-top: 80px;
+            background: white;
+            padding: 24px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .12);
+        }
+
+        #game-container.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar">
+        <img src="assets/general/voltar.svg" class="nav-icon" id="backBtn">
+        <nav class="settings-nav">
+            <div class="nav-content">
+                <div class="utility-icons">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/sound.svg" class="icon-default">
+                        <img src="assets/general/sound_hover.svg" class="icon-hover">
+                    </a>
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/music.svg" class="icon-default">
+                        <img src="assets/general/music_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+
+                <div class="main-gear-wrapper">
+                    <a href="#" class="nav-item">
+                        <img src="assets/general/settings.svg" class="icon-default">
+                        <img src="assets/general/settings_hover.svg" class="icon-hover">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div id="dialogue-overlay">
+        <div id="container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toSecondDialogue()">
+        </div>
+        <div id="container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="startGame()">
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="help">HELP</div>
+        <div class="container">
+            <div id="grid" class="grid"></div>
+            <div class="clues-container">
+                <h1 class="clues-main-title">PISTAS</h1>
+                <div class="clue-section">
+                    <p class="clue-text" id="clue-1" onclick="selectWordById(1, 'vertical')"><strong>1</strong> Doença
+                        em que as artérias ficam entupidas com gordura</p>
+                    <p class="clue-text" id="clue-2-v" onclick="selectWordById(2, 'vertical')"><strong>2</strong>
+                        Actividade saudável que ajuda a proteger o coração</p>
+                    <p class="clue-text" id="clue-2-h" onclick="selectWordById(2, 'horizontal')"><strong>2</strong>
+                        Quando o coração não recebe sangue suficiente</p>
+                    <p class="clue-text" id="clue-3" onclick="selectWordById(3, 'vertical')"><strong>3</strong> Hábito
+                        que faz mal ao coração e aos vasos sanguíneos</p>
+                    <p class="clue-text" id="clue-4" onclick="selectWordById(4, 'horizontal')"><strong>4</strong> Órgão
+                        que bombeia o sangue para todo o corpo</p>
+                    <p class="clue-text" id="clue-5" onclick="selectWordById(5, 'vertical')"><strong>5</strong> Quando
+                        o cérebro deixa de receber sangue</p>
+                    <p class="clue-text" id="clue-6-h" onclick="selectWordById(6, 'horizontal')"><strong>6</strong>
+                        Tubos por onde o sangue circula no corpo</p>
+                    <p class="clue-text" id="clue-6-v" onclick="selectWordById(6, 'vertical')"><strong>6</strong> A
+                        maior artéria do corpo que sai do coração</p>
+                </div>
+                <div id="status-panel" class="status-panel neutral">
+                    <button id="conclude-btn" class="conclude-btn disabled" onclick="openEndDialogue()"
+                        disabled>Concluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="end-dialogue-overlay" class="dialogue-overlay hidden">
+        <div id="end-container-1" class="dialogue-wrapper">
+            <img src="assets/general/dialogue.svg" class="dialogue-img">
+            <img src="assets/general/continuar.svg" class="btn-svg" onclick="toNextEndStep(1, 2)">
+        </div>
+        <div id="end-container-2" class="dialogue-wrapper hidden">
+            <img src="assets/general/dialogue2.svg" class="dialogue-img">
+            <img src="assets/general/jogar.svg" class="btn-svg" onclick="concludeGame()">
+        </div>
+    </div>
+
+    <div id="popup-quit" class="overlay-screen" style="display:none;">
+        <div class="popup-content">
+            <h3>Sair do nível?</h3>
+            <button onclick="confirmQuit()">SIM</button>
+            <button onclick="closeQuitPopup()">NÃO</button>
+        </div>
+    </div>
+
+    <script src="scripts/general.js"></script>
+    <script>
+        let words, cells = {}, selectedCell = null, activeWord = null;
+
+        function initMiniGame() {
+            document.getElementById('game-container').classList.add('visible');
+            const grid = document.getElementById("grid");
+
+            words = [
+                { id: 1, answer: "ATEROSCLEROSE", orientation: "vertical", positions: [[6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 7], [6, 8], [6, 9], [6, 10], [6, 11], [6, 12], [6, 13]] },
+                { id: 2, answer: "EXERCICIO", orientation: "vertical", positions: [[1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10]] },
+                { id: 2, answer: "ENFARTE", orientation: "horizontal", positions: [[1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2]] },
+                { id: 3, answer: "FUMAR", orientation: "vertical", positions: [[3, 2], [3, 3], [3, 4], [3, 5], [3, 6]] },
+                { id: 4, answer: "CORACAO", orientation: "horizontal", positions: [[5, 5], [6, 5], [7, 5], [8, 5], [9, 5], [10, 5], [11, 5]] },
+                { id: 5, answer: "AVC", orientation: "vertical", positions: [[8, 5], [8, 6], [8, 7]] },
+                { id: 6, answer: "ARTERIAS", orientation: "horizontal", positions: [[3, 9], [4, 9], [5, 9], [6, 9], [7, 9], [8, 9], [9, 9], [10, 9]] },
+                { id: 6, answer: "AORTA", orientation: "vertical", positions: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13]] }
+            ];
+
+            for (let y = 1; y <= 13; y++) {
+                for (let x = 1; x <= 11; x++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell block";
+                    cell.dataset.x = x; cell.dataset.y = y;
+                    grid.appendChild(cell);
+                    cells[`${x},${y}`] = cell;
+                }
+            }
+
+            words.forEach(w => {
+                w.positions.forEach((p, i) => {
+                    const cell = cells[`${p[0]},${p[1]}`];
+                    cell.classList.remove("block");
+                    if (!cell.wordData) cell.wordData = [];
+                    cell.wordData.push({ word: w, index: i });
+                    if (i === 0) {
+                        const num = document.createElement("div");
+                        num.className = "number";
+                        num.textContent = w.id;
+                        cell.appendChild(num);
+                    }
+                    cell.onclick = () => selectCell(cell);
+                    cell.ondblclick = () => toggleDirection(cell);
+                });
+            });
+
+            document.onkeydown = handleKeyDown;
+        }
+
+        function selectCell(cell, changeWord = true) {
+            if (!cell || cell.classList.contains('block')) return;
+            if (selectedCell) selectedCell.classList.remove('selected');
+            selectedCell = cell;
+            selectedCell.classList.add('selected');
+
+            document.querySelectorAll('.cell.word-selected').forEach(c => c.classList.remove('word-selected'));
+            document.querySelectorAll('.clue-text').forEach(t => t.classList.remove('active-clue'));
+
+            if (cell.wordData) {
+                if (changeWord || !activeWord) {
+                    activeWord = cell.wordData[0].word;
+                } else {
+                    const match = cell.wordData.find(wd => wd.word === activeWord);
+                    if (!match) activeWord = cell.wordData[0].word;
+                }
+
+                activeWord.positions.forEach(p => cells[`${p[0]},${p[1]}`].classList.add('word-selected'));
+
+                const suffix = (activeWord.id === 2 || activeWord.id === 6) ?
+                    (activeWord.orientation === 'vertical' ? '-v' : '-h') : '';
+                const clue = document.getElementById(`clue-${activeWord.id}${suffix}`);
+                if (clue) clue.classList.add('active-clue');
+            }
+        }
+
+        function toggleDirection(cell) {
+            if (cell.wordData && cell.wordData.length > 1) {
+                const currentIdx = cell.wordData.findIndex(wd => wd.word === activeWord);
+                activeWord = cell.wordData[(currentIdx + 1) % cell.wordData.length].word;
+                selectCell(cell, false);
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (!selectedCell || !activeWord) return;
+            const x = +selectedCell.dataset.x, y = +selectedCell.dataset.y;
+            const idx = activeWord.positions.findIndex(p => p[0] === x && p[1] === y);
+
+            if (e.key === "Backspace") {
+                selectedCell.childNodes.forEach(node => { if (node.nodeType === 3) node.remove(); });
+                if (idx > 0) selectCell(cells[`${activeWord.positions[idx - 1][0]},${activeWord.positions[idx - 1][1]}`], false);
+                checkStatus(); // Check if word is still correct after delete
+            } else if (/^[a-zA-ZÀ-ÿ]$/.test(e.key)) {
+                selectedCell.childNodes.forEach(node => { if (node.nodeType === 3) node.remove(); });
+                selectedCell.appendChild(document.createTextNode(e.key.toUpperCase()));
+                if (idx < activeWord.positions.length - 1) selectCell(cells[`${activeWord.positions[idx + 1][0]},${activeWord.positions[idx + 1][1]}`], false);
+                checkStatus(); // Validate word and overall game
+            } else if (e.key.startsWith("Arrow")) {
+                let nx = x, ny = y;
+                if (e.key === "ArrowUp") ny--; if (e.key === "ArrowDown") ny++;
+                if (e.key === "ArrowLeft") nx--; if (e.key === "ArrowRight") nx++;
+                if (cells[`${nx},${ny}`]) selectCell(cells[`${nx},${ny}`]);
+            }
+        }
+
+        function checkStatus() {
+            let allWordsCorrect = true;
+
+            words.forEach(w => {
+                const wordIsCorrect = w.positions.every((p, i) => {
+                    const cell = cells[`${p[0]},${p[1]}`];
+                    const text = Array.from(cell.childNodes)
+                        .filter(n => n.nodeType === 3).map(n => n.textContent).join("");
+                    return text === w.answer[i];
+                });
+
+                // Turn cells green for this specific word if correct
+                w.positions.forEach(p => {
+                    cells[`${p[0]},${p[1]}`].classList.toggle("correct", wordIsCorrect);
+                });
+
+                if (!wordIsCorrect) allWordsCorrect = false;
+            });
+
+            // Update the Sidebar Panel
+            const panel = document.getElementById('status-panel');
+            const btn = document.getElementById('conclude-btn');
+
+            if (allWordsCorrect) {
+                panel.className = "status-panel success";
+                btn.classList.remove('disabled');
+                btn.disabled = false;
+            } else {
+                panel.className = "status-panel neutral";
+                btn.classList.add('disabled');
+                btn.disabled = true;
+            }
+        }
+        window.selectWordById = (id, orientation) => {
+            const target = words.find(w => w.id === id && (!orientation || w.orientation === orientation));
+            if (target) {
+                activeWord = target;
+                selectCell(cells[`${target.positions[0][0]},${target.positions[0][1]}`], false);
+            }
+        };
+
+        function closeQuitPopup() { document.getElementById('popup-quit').style.display = 'none'; }
+        function confirmQuit() { window.location.href = 'home.html'; }
+        function concludeGame() {
+            let progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
+
+            // Get the current filename (e.g., "hospital")
+            const pageName = window.location.pathname.split("/").pop().split(".")[0];
+
+            // Save progress
+            progress[pageName] = true;
+            localStorage.setItem('gameProgress', JSON.stringify(progress));
+
+            // Always go back to home.html to see the updated map/button
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+
+</html>
