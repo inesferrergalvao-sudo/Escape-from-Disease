@@ -379,7 +379,7 @@ opacity: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    width: 80vw;
+    width: 85vw;
     max-width: 95vw;
 }
 
@@ -390,11 +390,16 @@ opacity: 1;
 
 .btn-svg {
     cursor: pointer;
-    margin-top: -55px;
-    margin-right: 45px;
-    height: 42px;
+    margin-top: -60px;
+    margin-right: 14%;
+    height: 50px;
     transition: transform 0.2s;
     z-index: 31;
+}
+
+.btn-svg:hover {
+    cursor: pointer;
+    transform: scale(1.05); 
 }
 
  #end-dialogue-overlay {
