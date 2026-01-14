@@ -15,6 +15,18 @@ function startGame() {
     const overlay = document.getElementById('dialogue-overlay');
     const navbar = document.getElementById('navbar');
     const gameContainer = document.getElementById('game-container');
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile && document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().then(() => {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(err => {
+                    console.log("Lock failed:", err);
+                });
+            }
+        });
+    }
+
     if (overlay) {
         overlay.style.opacity = '0';
         overlay.style.pointerEvents = 'none';
@@ -25,9 +37,10 @@ function startGame() {
 
     // CRITICAL: Make the game container visible
     if (gameContainer) {
-        gameContainer.classList.add('visible');
+        gameContainer.classList.add('visible'); 9
     }
 
+    // This calls the specific game setup (like the one in market.html)
     if (typeof initMiniGame === "function") {
         initMiniGame();
     }
@@ -96,13 +109,13 @@ function toNextEndStep(currentStep, nextStep) {
 function isGameFinished() {
     const requiredGames = ['hospital', 'market', 'park', 'arcade', 'house'];
     const progress = JSON.parse(localStorage.getItem('gameProgress')) || {};
-    
+
     return requiredGames.every(game => progress[game] === true);
 }
 
 
-const quitBtn= document.getElementById('quitBtn');
-const stayBtn= document.getElementById('stayBtn');
+const quitBtn = document.getElementById('quitBtn');
+const stayBtn = document.getElementById('stayBtn');
 
 if (quitBtn) {
     quitBtn.addEventListener('mouseenter', () => {

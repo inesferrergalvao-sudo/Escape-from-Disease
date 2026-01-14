@@ -35,22 +35,24 @@
         .overlay-screen {
             display: none;
             position: absolute;
+            width: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
             padding: 40px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
             z-index: 100;
-            width: 500px;
-            border: 0px;
+            border: none;
         }
     </style>
 </head>
 
 <body>
+    <div id="orientation-overlay">
+        <h3>Por favor, roda o teu telemóvel</h3>
+        <p>Este jogo foi desenhado para ser jogado na horizontal.</p>
+    </div>
     <div id="navbar">
         <img src="assets/general/voltar.svg" class="nav-icon" id="backBtn">
         <nav class="settings-nav">
@@ -96,10 +98,10 @@
             </div>
         </div>
 
-        <div id="game-over-screen" class="overlay-screen">
-            <h1>GAME OVER</h1>
-            <p>Apanhaste produtos estragados a mais!</p>
-            <button onclick="resetGame()">TENTAR NOVAMENTE</button>
+        <div class="overlay-screen" id="game-over-screen">
+            <h3>Oh não, o monstro<br>da aterosclerose apanhou-te!</h3>
+            <p>Comeste tanta gordura e açúcar que as tuas artérias ficaram completamente bloqueadas!</p>
+            <button onclick="resetGame()">Tentar novamente</button>
         </div>
 
         <div id="cart"></div>
@@ -150,15 +152,26 @@
 
         cart.style.backgroundImage = `url('assets/market/${cartImage}')`;
 
-        // Movement logic
-        container.addEventListener('mousemove', (e) => {
+        // Movement logic - Desktop and Mobile/tablet
+        function moveCart(clientX) {
             if (!gameActive) return;
-            // Center the cart on mouse
             const targetWidth = 220;
-            let xPos = e.clientX - targetWidth / 2;
+            let xPos = clientX - targetWidth / 2;
             xPos = Math.max(0, Math.min(xPos, window.innerWidth - targetWidth));
+
             cart.style.left = xPos + 'px';
+        }
+
+        container.addEventListener('mousemove', (e) => {
+            moveCart(e.clientX);
         });
+
+        container.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+
+            const touch = e.touches[0];
+            moveCart(touch.clientX);
+        }, { passive: false });
 
         function initMiniGame() {
             gameActive = true;
@@ -183,7 +196,7 @@
         function resetGame() {
             gameOverScreen.style.display = 'none';
 
-            // 2. Reset game variables
+            //Reset game variables
             score = 0;
             updateUI();
             const items = document.querySelectorAll('.item');
