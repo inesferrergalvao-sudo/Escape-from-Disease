@@ -44,7 +44,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: rgba(0, 0, 0, 0.4);
             overflow: hidden;
             color: white;
         }
@@ -115,7 +114,7 @@
 
         <div id="lvl1-intro" class="screen">
             <h1>HEART ATTACK</h1>
-            <p>LIMPA A GORDURA À VOLTA DO CORAÇÃO!</p>
+            <p>EXPLODE TODAS AS BOLAS DE GORDURA PARA SALVARES O CORACAO!</p>
             <button class="btn-start" onclick="startLevel('heart')">
                 <span class="arrow">▶</span> START <span class="arrow">◀</span>
             </button>
@@ -123,7 +122,7 @@
 
         <div id="lvl2-intro" class="screen">
             <h1>BRAIN FOG</h1>
-            <p style="font-size: 12px; margin: 0; margin-bottom: 50px;">BOM TRABALHO! AGORA LIMPA O CÉREBRO.</p>
+            <p style="font-size: 12px; margin: 0; margin-bottom: 50px;">OH NAO! ALGUMAS BOLAS FUGIRAM PARA O CEREBRO! EXPLODE TODAS AS GORDURAS PARA O SALVARES!.</p>
             <button class="btn-start" onclick="startLevel('brain')">
                 <span class="arrow">▶</span> START <span class="arrow">◀</span>
             </button>
@@ -133,7 +132,7 @@
 
         <div id="game-over-screen" class="screen">
             <h1>FIM DE JOGO</h1>
-            <button class="btn-start" onclick="resetGame()">
+            <button class="btn-over" onclick="resetGame()">
                 <span class="arrow">▶</span> TENTAR DE NOVO <span class="arrow">◀</span>
             </button>
         </div>
@@ -167,7 +166,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        let FAT_SIZE = 50;
+        let FAT_SIZE = 80;
         let ORGAN_SIZE = 100;
         let LAUNCHER_X, LAUNCHER_Y;
         let gameActive = false;
@@ -224,8 +223,8 @@
 
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
 
-            const colSpacing = 50;
-            const rowSpacing = 50;
+            const colSpacing = 80;
+            const rowSpacing = 80;
             const cols = Math.floor((canvas.width - 40) / colSpacing);
             const rows = 4;
             const startX = (canvas.width - (cols * colSpacing)) / 2 + (colSpacing / 2);
